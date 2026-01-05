@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from "uuid";
 import ffmpeg from "fluent-ffmpeg";
 import archiver from "archiver";
 import { cleanupOldSessions } from "@/lib/cleanup";
+import { checkUsageLimit, incrementUsage } from "@/lib/usage";
 
 // Configure FFmpeg paths
 // In production (Docker), use system ffmpeg
@@ -105,6 +106,21 @@ export async function POST(req: NextRequest) {
     try {
         // Trigger cleanup of old sessions (non-blocking)
         cleanupOldSessions().catch(() => { });
+
+        // Check usage limits for free tier
+        const ip = req.headers.get("x-forwarded-for")?.split(",")[0] ||
+            req.headers.get("x-real-ip") ||
+            "unknown";
+
+        const { allowed, remaining } = checkUsageLimit(ip);
+
+        if (!allowed) {
+            return NextResponse.json({
+                error: "Daily limit reached. Upgrade to Pro for unlimited conversions.",
+                remaining: 0,
+                upgradeUrl: "/pricing"
+            }, { status: 429 });
+        }
 
         const contentType = req.headers.get("content-type") || "";
 
@@ -224,6 +240,9 @@ export async function POST(req: NextRequest) {
             archive.finalize();
         });
 
+        // Increment usage count for free tier
+        incrementUsage(ip);
+
         return NextResponse.json({
             sessionId,
             zip: `/api/download?id=${sessionId}&file=racio-bundle.zip`,
@@ -231,6 +250,7 @@ export async function POST(req: NextRequest) {
                 name: r.name,
                 url: `/api/download?id=${sessionId}&file=${path.basename(r.path)}`,
             })),
+            remaining: remaining - 1,
         });
     } catch (error: any) {
         console.error("Processing error:", error);

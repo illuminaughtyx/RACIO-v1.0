@@ -162,10 +162,19 @@ export default function Home() {
           </div>
           <h1 className="text-xl md:text-2xl font-bold tracking-tight font-outfit">RACIO</h1>
         </div>
-        <div className="hidden sm:block">
-          <span className="text-white/25 text-xs md:text-sm font-medium border border-white/10 px-3 py-1.5 md:px-4 md:py-2 rounded-full">
-            v1.0
-          </span>
+        <div className="flex items-center gap-3">
+          <a
+            href="/pricing"
+            className="text-white/40 hover:text-white text-sm transition-colors hidden sm:block"
+          >
+            Pricing
+          </a>
+          <a
+            href="/pricing"
+            className="text-xs md:text-sm font-medium border border-[#a855f7]/30 bg-[#a855f7]/10 hover:bg-[#a855f7]/20 px-3 py-1.5 md:px-4 md:py-2 rounded-full text-[#c084fc] transition-colors"
+          >
+            Upgrade to Pro
+          </a>
         </div>
       </header>
 
