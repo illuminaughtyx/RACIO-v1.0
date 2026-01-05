@@ -207,7 +207,7 @@ export default function Home() {
         </div>
         <div className="hidden sm:block">
           <span className="text-white/25 text-xs md:text-sm font-medium border border-white/10 px-3 py-1.5 md:px-4 md:py-2 rounded-full">
-            v1.0
+            v1.1
           </span>
         </div>
       </header>
