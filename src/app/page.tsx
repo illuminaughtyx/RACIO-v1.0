@@ -1,8 +1,10 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import UploadBox from "@/components/UploadBox";
 import Processing from "@/components/Processing";
 import Results from "@/components/Results";
+import Pricing from "@/components/Pricing";
+import { checkUsage, incrementUsage, getRemainingUses, isProUser } from "@/lib/usage";
 
 export default function Home() {
   const [step, setStep] = useState<"upload" | "processing" | "results">("upload");
@@ -12,7 +14,26 @@ export default function Home() {
   const [progress, setProgress] = useState(0);
   const [stage, setStage] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [showLimitModal, setShowLimitModal] = useState(false);
+  const [limitMessage, setLimitMessage] = useState({
+    title: "Daily Limit Reached",
+    desc: "You've hit the limit of 3 free videos today. Upgrade to Pro for unlimited conversions."
+  });
   const progressInterval = useRef<NodeJS.Timeout | null>(null);
+
+  // Check limits before allowing upload
+  const checkLimit = () => {
+    const allowed = checkUsage();
+    if (!allowed) {
+      setLimitMessage({
+        title: "Daily Limit Reached",
+        desc: "You've hit the limit of 3 free videos today. Upgrade to Pro for unlimited conversions."
+      });
+      setShowLimitModal(true);
+      return false;
+    }
+    return true;
+  };
 
   // Simulate progress stages
   const simulateProgress = () => {
@@ -47,6 +68,8 @@ export default function Home() {
   };
 
   const handleUpload = async (file: File) => {
+    if (!checkLimit()) return;
+
     setError(null);
     setStep("processing");
     setProcessingMessage("Processing Video");
@@ -71,6 +94,7 @@ export default function Home() {
       const data = await res.json();
       setResultsData(data);
       setStep("results");
+      incrementUsage(); // Count usage
     } catch (e: any) {
       stopProgress();
       console.error(e);
@@ -80,6 +104,19 @@ export default function Home() {
   };
 
   const handleUrlSubmit = async (url: string) => {
+    // 1. Check if user is Pro (Feature Lock)
+    if (!isProUser()) {
+      setLimitMessage({
+        title: "Pro Feature Locked",
+        desc: "Downloading from X (Twitter) is a Pro feature. Upgrade to unlock."
+      });
+      setShowLimitModal(true);
+      return;
+    }
+
+    // 2. Check limits (though Pro user usually has no limits, good to keep logic consistent)
+    if (!checkLimit()) return;
+
     setError(null);
     setIsUrlLoading(true);
 
@@ -124,6 +161,7 @@ export default function Home() {
       const processData = await processRes.json();
       setResultsData(processData);
       setStep("results");
+      incrementUsage(); // Count usage
     } catch (e: any) {
       stopProgress();
       console.error(e);
@@ -141,6 +179,11 @@ export default function Home() {
     setProgress(0);
     setStage("");
     setError(null);
+  };
+
+  const scrollToPricing = () => {
+    setShowLimitModal(false);
+    document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
@@ -162,21 +205,39 @@ export default function Home() {
           </div>
           <h1 className="text-xl md:text-2xl font-bold tracking-tight font-outfit">RACIO</h1>
         </div>
-        <div className="flex items-center gap-3">
-          <a
-            href="/pricing"
-            className="text-white/40 hover:text-white text-sm transition-colors hidden sm:block"
-          >
-            Pricing
-          </a>
-          <a
-            href="/pricing"
-            className="text-xs md:text-sm font-medium border border-[#a855f7]/30 bg-[#a855f7]/10 hover:bg-[#a855f7]/20 px-3 py-1.5 md:px-4 md:py-2 rounded-full text-[#c084fc] transition-colors"
-          >
-            Upgrade to Pro
-          </a>
+        <div className="hidden sm:block">
+          <span className="text-white/25 text-xs md:text-sm font-medium border border-white/10 px-3 py-1.5 md:px-4 md:py-2 rounded-full">
+            v1.0
+          </span>
         </div>
       </header>
+
+      {/* Limit / Feature Modal */}
+      {showLimitModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="glass-panel p-8 max-w-md w-full text-center animate-fade-in-up">
+            <div className="text-4xl mb-4">🚀</div>
+            <h3 className="text-2xl font-bold mb-2">{limitMessage.title}</h3>
+            <p className="text-white/50 mb-6">
+              {limitMessage.desc}
+            </p>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={scrollToPricing}
+                className="btn-primary w-full"
+              >
+                View Plans
+              </button>
+              <button
+                onClick={() => setShowLimitModal(false)}
+                className="text-white/30 text-sm hover:text-white"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Error Toast */}
       {error && (
@@ -194,7 +255,7 @@ export default function Home() {
       )}
 
       {/* Content */}
-      <section className="flex-1 w-full flex flex-col items-center justify-center z-10 transition-all duration-500">
+      <section className="w-full flex flex-col items-center justify-center z-10 transition-all duration-500 pb-20">
         {step === "upload" && (
           <>
             <div className="text-center mb-10 md:mb-16 animate-fade-in-up max-w-4xl mx-auto px-2">
@@ -234,8 +295,13 @@ export default function Home() {
         )}
       </section>
 
+      {/* Pricing Section (Below Fold) */}
+      <section id="pricing" className="w-full border-t border-white/5 pt-20 z-10">
+        <Pricing />
+      </section>
+
       {/* Footer */}
-      <footer className="mt-auto pt-8 md:pt-16 text-white/15 text-xs md:text-sm pb-4 z-10 text-center">
+      <footer className="mt-8 pt-8 md:pt-16 text-white/15 text-xs md:text-sm pb-8 z-10 text-center border-t border-white/5 w-full">
         <p>RACIO — The Ratio Engine</p>
       </footer>
     </main>

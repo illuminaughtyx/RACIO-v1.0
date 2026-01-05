@@ -8,8 +8,16 @@ interface UsageData {
     date: string; // YYYY-MM-DD
 }
 
+export const isProUser = (): boolean => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem("racio_pro") === "true";
+};
+
 export const checkUsage = (): boolean => {
     if (typeof window === "undefined") return true;
+
+    // Pro users have no limits
+    if (isProUser()) return true;
 
     const today = new Date().toISOString().split("T")[0];
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -29,6 +37,9 @@ export const checkUsage = (): boolean => {
 export const incrementUsage = () => {
     if (typeof window === "undefined") return;
 
+    // Optional: Don't count usage for Pro users? 
+    // Or still count it but don't limit it. Let's still count for stats if we had them.
+
     const today = new Date().toISOString().split("T")[0];
     const stored = localStorage.getItem(STORAGE_KEY);
 
@@ -46,6 +57,7 @@ export const incrementUsage = () => {
 
 export const getRemainingUses = (): number => {
     if (typeof window === "undefined") return DAILY_LIMIT;
+    if (isProUser()) return 999; // Infinite
 
     const today = new Date().toISOString().split("T")[0];
     const stored = localStorage.getItem(STORAGE_KEY);
