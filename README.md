@@ -1,36 +1,112 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# RACIO - The Ratio Engine
 
-## Getting Started
+> **Paste once → get all ratios → post everywhere.**
 
-First, run the development server:
+RACIO is a video ratio engine that intelligently processes videos and outputs three platform-optimized formats:
+- **9:16** (Reels / Shorts)
+- **1:1** (Instagram Feed)
+- **16:9** (YouTube / Landscape)
+
+## Features
+
+✅ **Smart Processing** - Automatically detects input aspect ratio and applies optimal strategy  
+✅ **No Watermarks** - Clean output files, no branding added  
+✅ **No Login Required** - Use instantly without creating an account  
+✅ **Auto-Cleanup** - Files are automatically deleted after 1 hour  
+✅ **X/Twitter URL Support** - Paste video URLs directly  
+✅ **ZIP Downloads** - Get all formats in one convenient bundle  
+✅ **Progress Feedback** - Real-time processing stages  
+
+## Tech Stack
+
+- **Frontend**: Next.js 16, React, TypeScript
+- **Styling**: Custom CSS with glassmorphism effects
+- **Video Processing**: FFmpeg (fluent-ffmpeg)
+- **URL Downloads**: yt-dlp
+- **Icons**: Lucide React
+
+## Local Development
 
 ```bash
+# Install dependencies
+npm install
+
+# Run development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# Open http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Deployment to Railway
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Prerequisites
+- Railway account
+- GitHub repository with the code
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Steps
 
-## Learn More
+1. **Push to GitHub**
+   ```bash
+   git init
+   git add .
+   git commit -m "Initial commit"
+   git remote add origin <your-repo-url>
+   git push -u origin main
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+2. **Deploy on Railway**
+   - Go to [Railway](https://railway.app)
+   - Click "New Project" → "Deploy from GitHub repo"
+   - Select your repository
+   - Railway will auto-detect the Dockerfile and build
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. **Environment Variables** (Optional)
+   - `NODE_ENV=production` (auto-set by Railway)
+   - `PORT=3000` (auto-set by Railway)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+4. **Custom Domain**
+   - Go to Settings → Domains
+   - Add your custom domain or use the Railway-generated one
 
-## Deploy on Vercel
+## API Endpoints
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/process` | POST | Upload a video file for processing |
+| `/api/fetch-url` | POST | Download video from X/Twitter URL |
+| `/api/download` | GET | Download processed files |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Smart Processing Logic
+
+| Input | 9:16 Strategy | 1:1 Strategy | 16:9 Strategy |
+|-------|---------------|--------------|---------------|
+| Vertical (9:16) | Fit with padding | Center crop | Blur sides |
+| Landscape (16:9) | Center crop | Center crop | Fit with padding |
+
+## File Structure
+
+```
+racio/
+├── src/
+│   ├── app/
+│   │   ├── api/
+│   │   │   ├── process/route.ts    # Video processing
+│   │   │   ├── fetch-url/route.ts  # URL downloads
+│   │   │   └── download/route.ts   # File serving
+│   │   ├── page.tsx                # Main page
+│   │   ├── layout.tsx              # Root layout
+│   │   └── globals.css             # Styles
+│   ├── components/
+│   │   ├── UploadBox.tsx           # Upload UI
+│   │   ├── Processing.tsx          # Progress UI
+│   │   └── Results.tsx             # Download UI
+│   └── lib/
+│       └── cleanup.ts              # Auto-cleanup
+├── Dockerfile                       # Production build
+├── railway.json                     # Railway config
+└── package.json
+```
+
+## License
+
+MIT

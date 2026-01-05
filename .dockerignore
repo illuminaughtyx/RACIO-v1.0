@@ -1,0 +1,12 @@
+node_modules
+.next
+.git
+*.log
+npm-debug.log*
+.DS_Store
+*.md
+test_upload.js
+generate_sample.js
+sample.mp4
+.env*
+!.env.example
