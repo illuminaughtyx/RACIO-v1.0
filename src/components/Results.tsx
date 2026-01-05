@@ -35,10 +35,10 @@ export default function Results({ data, onReset }: ResultsProps) {
                 </p>
 
                 {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <div className="flex flex-col sm:flex-row gap-4 justify-center w-full max-w-md mx-auto sm:max-w-none">
                     <a
                         href={data.zip}
-                        className="btn-primary flex items-center justify-center gap-3 px-10 py-4 text-lg group"
+                        className="btn-primary flex items-center justify-center gap-3 px-10 py-4 text-lg group w-full sm:w-auto"
                         download
                     >
                         <Package size={22} className="group-hover:animate-bounce" />
@@ -46,7 +46,7 @@ export default function Results({ data, onReset }: ResultsProps) {
                     </a>
                     <button
                         onClick={onReset}
-                        className="btn-secondary flex items-center justify-center gap-2 text-white/60 hover:text-white"
+                        className="btn-secondary flex items-center justify-center gap-2 text-white/60 hover:text-white w-full sm:w-auto"
                     >
                         <RefreshCcw size={18} />
                         Process Another

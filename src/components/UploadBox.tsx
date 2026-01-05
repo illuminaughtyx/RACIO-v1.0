@@ -48,13 +48,13 @@ export default function UploadBox({ onFileSelect, onUrlSubmit, isUrlLoading }: U
     };
 
     return (
-        <div className="w-full max-w-2xl mx-auto">
-            {/* File Upload Box */}
+        <div className="w-full max-w-2xl mx-auto px-1">
+            {/* File Upload Box - Tappable Card */}
             <div
-                className={`glass-panel p-10 md:p-14 text-center transition-all duration-300 border-2 border-dashed cursor-pointer group
+                className={`glass-panel relative overflow-hidden p-8 md:p-14 text-center transition-all duration-300 border-2 border-dashed cursor-pointer active:scale-[0.98] md:active:scale-100
           ${isDragOver
                         ? "border-[#a855f7] bg-[#a855f7]/10 scale-[1.02]"
-                        : "border-white/10 hover:border-white/30 hover:bg-white/[0.02]"
+                        : "border-white/10 hover:border-white/30 hover:bg-white/[0.04]"
                     }
         `}
                 onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
@@ -62,23 +62,24 @@ export default function UploadBox({ onFileSelect, onUrlSubmit, isUrlLoading }: U
                 onDrop={handleDrop}
                 onClick={() => document.getElementById("file-upload")?.click()}
             >
-                <div className="flex flex-col items-center justify-center gap-5">
-                    <div className={`p-5 rounded-2xl transition-all duration-300 ${isDragOver
+                <div className="flex flex-col items-center justify-center gap-4 md:gap-5 relative z-10">
+                    <div className={`p-4 md:p-5 rounded-2xl transition-all duration-300 ${isDragOver
                             ? "bg-[#a855f7]/20 scale-110"
-                            : "bg-white/5 group-hover:bg-white/10 group-hover:scale-105"
+                            : "bg-white/5 active:bg-white/10 md:group-hover:bg-white/10 md:group-hover:scale-105"
                         }`}>
-                        <Upload className={`w-10 h-10 transition-colors ${isDragOver ? "text-[#a855f7]" : "text-white/60 group-hover:text-white/80"
+                        <Upload className={`w-8 h-8 md:w-10 md:h-10 transition-colors ${isDragOver ? "text-[#a855f7]" : "text-white/60 group-hover:text-white/80"
                             }`} />
                     </div>
                     <div>
-                        <h3 className="text-2xl md:text-3xl font-bold mb-2 font-outfit">
-                            {selectedFile ? selectedFile.name : "Drop your video here"}
+                        <h3 className="text-xl md:text-3xl font-bold mb-2 font-outfit">
+                            {selectedFile ? selectedFile.name : "Tap to Upload Video"}
                         </h3>
-                        <p className="text-white/40 text-base md:text-lg">
+                        <p className="text-white/40 text-sm md:text-lg">
                             {selectedFile
-                                ? `${formatFileSize(selectedFile.size)} • Click to change`
-                                : "or click to browse"
+                                ? `${formatFileSize(selectedFile.size)} • Tap to change`
+                                : <span className="hidden md:inline">or drag & drop here</span>
                             }
+                            {!selectedFile && <span className="md:hidden">Select from gallery</span>}
                         </p>
                     </div>
 
@@ -93,44 +94,46 @@ export default function UploadBox({ onFileSelect, onUrlSubmit, isUrlLoading }: U
             </div>
 
             {/* Divider */}
-            <div className="flex items-center gap-4 my-8">
+            <div className="flex items-center gap-4 my-6 md:my-8 px-2">
                 <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
-                <span className="text-white/30 font-medium text-xs uppercase tracking-widest flex items-center gap-2">
-                    <Sparkles size={12} className="text-[#a855f7]" />
-                    or paste URL
+                <span className="text-white/30 font-medium text-[10px] md:text-xs uppercase tracking-widest flex items-center gap-2">
+                    <Sparkles size={10} className="text-[#a855f7]" />
+                    or paste link
                 </span>
                 <div className="flex-1 h-px bg-gradient-to-l from-transparent via-white/10 to-transparent"></div>
             </div>
 
-            {/* URL Input */}
-            <form onSubmit={handleUrlSubmit} className="glass-panel flex items-center gap-3 p-2 pl-5">
-                <LinkIcon className="text-white/30 flex-shrink-0" size={18} />
-                <input
-                    type="text"
-                    placeholder="Paste X (Twitter) video URL..."
-                    value={url}
-                    onChange={(e) => setUrl(e.target.value)}
-                    className="bg-transparent border-none outline-none flex-1 text-white placeholder:text-white/25 text-base md:text-lg py-2"
-                    disabled={isUrlLoading}
-                />
+            {/* URL Input - Mobile Optimized */}
+            <form onSubmit={handleUrlSubmit} className="glass-panel flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-2 sm:pl-5">
+                <div className="flex items-center gap-3 flex-1 px-2 sm:px-0 pt-2 sm:pt-0">
+                    <LinkIcon className="text-white/30 flex-shrink-0" size={18} />
+                    <input
+                        type="text"
+                        placeholder="Paste X (Twitter) video link"
+                        value={url}
+                        onChange={(e) => setUrl(e.target.value)}
+                        className="bg-transparent border-none outline-none flex-1 text-white placeholder:text-white/25 text-base py-2 w-full min-w-0"
+                        disabled={isUrlLoading}
+                    />
+                </div>
                 <button
                     type="submit"
-                    className="btn-primary py-3 px-6 md:px-8 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base"
+                    className="btn-primary py-3 px-6 md:px-8 mt-2 sm:mt-0 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base w-full sm:w-auto"
                     disabled={!url.trim() || isUrlLoading}
                 >
                     {isUrlLoading ? (
                         <>
                             <Loader2 size={16} className="animate-spin" />
-                            <span className="hidden md:inline">Fetching...</span>
+                            <span>Fetching...</span>
                         </>
                     ) : (
-                        "Go"
+                        "Process"
                     )}
                 </button>
             </form>
 
-            <p className="mt-6 text-center text-white/25 text-xs md:text-sm">
-                Supports MP4, MOV, MKV up to 500MB • X/Twitter video URLs
+            <p className="mt-6 text-center text-white/25 text-[10px] md:text-sm px-4">
+                Max 500MB • MP4, MOV, MKV • Works with X/Twitter
             </p>
         </div>
     );
