@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
             output: outputPath,
             format: "best[ext=mp4]/best", // Prefer MP4
             noPlaylist: true,
-            noCheckCertificates: true,
+            noCheckCertificate: true,
             // Additional options for reliability
             retries: 3,
             // No watermarks - Twitter doesn't add them but some wrappers do
