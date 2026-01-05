@@ -88,13 +88,14 @@ export default function UploadBox({ onFileSelect, onUrlSubmit, isUrlLoading }: U
                         accept="video/*"
                         onChange={handleChange}
                         className="hidden"
+                        style={{ display: "none" }} // Force hide
                         id="file-upload"
                     />
                 </div>
             </div>
 
             {/* Divider */}
-            <div className="flex items-center gap-4 my-6 md:my-8 px-2">
+            <div className="flex items-center gap-4 my-6 md:my-8 px-2 w-full">
                 <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
                 <span className="text-white/30 font-medium text-[10px] md:text-xs uppercase tracking-widest flex items-center gap-2">
                     <Sparkles size={10} className="text-[#a855f7]" />
@@ -103,9 +104,9 @@ export default function UploadBox({ onFileSelect, onUrlSubmit, isUrlLoading }: U
                 <div className="flex-1 h-px bg-gradient-to-l from-transparent via-white/10 to-transparent"></div>
             </div>
 
-            {/* URL Input - Mobile Optimized */}
-            <form onSubmit={handleUrlSubmit} className="glass-panel flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-2 sm:pl-5">
-                <div className="flex items-center gap-3 flex-1 px-2 sm:px-0 pt-2 sm:pt-0">
+            {/* URL Input - Mobile Optimized (Stacked) */}
+            <form onSubmit={handleUrlSubmit} className="glass-panel w-full flex flex-col sm:flex-row items-stretch gap-3 p-3 sm:pl-5 sm:pr-2 sm:py-2">
+                <div className="flex items-center gap-3 flex-1 px-1">
                     <LinkIcon className="text-white/30 flex-shrink-0" size={18} />
                     <input
                         type="text"
@@ -118,7 +119,7 @@ export default function UploadBox({ onFileSelect, onUrlSubmit, isUrlLoading }: U
                 </div>
                 <button
                     type="submit"
-                    className="btn-primary py-3 px-6 md:px-8 mt-2 sm:mt-0 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base w-full sm:w-auto"
+                    className="btn-primary py-3 px-6 md:px-8 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base w-full sm:w-auto shrink-0"
                     disabled={!url.trim() || isUrlLoading}
                 >
                     {isUrlLoading ? (
@@ -127,7 +128,7 @@ export default function UploadBox({ onFileSelect, onUrlSubmit, isUrlLoading }: U
                             <span>Fetching...</span>
                         </>
                     ) : (
-                        "Process"
+                        "Go"
                     )}
                 </button>
             </form>

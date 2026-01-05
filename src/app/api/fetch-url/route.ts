@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { mkdir, writeFile } from "fs/promises";
+import { mkdir } from "fs/promises";
 import path from "path";
 import os from "os";
 import { v4 as uuidv4 } from "uuid";
-import ytdlp from "yt-dlp-exec";
+import { spawn } from "child_process";
 
 // Validate Twitter/X URL
 function isValidTwitterUrl(url: string): boolean {
@@ -34,20 +34,30 @@ export async function POST(req: NextRequest) {
 
         const outputPath = path.join(tempDir, "input.mp4");
 
-        // Download video using yt-dlp
-        // yt-dlp automatically handles Twitter/X videos
-        await ytdlp(url, {
-            output: outputPath,
-            format: "best[ext=mp4]/best", // Prefer MP4
-            noPlaylist: true,
-            noCheckCertificate: true,
-            // Additional options for reliability
-            retries: 3,
-            // No watermarks - Twitter doesn't add them but some wrappers do
+        // Download video using system yt-dlp
+        await new Promise<void>((resolve, reject) => {
+            const args = [
+                url,
+                "-o", outputPath,
+                "-f", "best[ext=mp4]/best",
+                "--no-playlist",
+                "--no-check-certificate",
+                "--retries", "3"
+            ];
+
+            const process = spawn("yt-dlp", args);
+
+            process.on("close", (code) => {
+                if (code === 0) resolve();
+                else reject(new Error(`yt-dlp exited with code ${code}`));
+            });
+
+            process.on("error", (err) => {
+                reject(err);
+            });
         });
 
         // Now forward to the processing endpoint
-        // We return the sessionId and path so the client can trigger processing
         return NextResponse.json({
             success: true,
             sessionId,
@@ -57,19 +67,6 @@ export async function POST(req: NextRequest) {
 
     } catch (error: any) {
         console.error("Download error:", error);
-
-        // Provide helpful error messages
-        if (error.message?.includes("not found") || error.message?.includes("yt-dlp")) {
-            return NextResponse.json({
-                error: "yt-dlp not installed. Please install it: https://github.com/yt-dlp/yt-dlp"
-            }, { status: 500 });
-        }
-
-        if (error.message?.includes("Private") || error.message?.includes("protected")) {
-            return NextResponse.json({
-                error: "This video is private or from a protected account."
-            }, { status: 403 });
-        }
 
         return NextResponse.json({
             error: error.message || "Failed to download video"
