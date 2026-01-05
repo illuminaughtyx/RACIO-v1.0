@@ -50,7 +50,7 @@ function getVideoMetadata(filePath: string): Promise<any> {
     });
 }
 
-// Helper to process video
+// Helper to process video - OPTIMIZED for speed
 function processVideo({
     input,
     output,
@@ -68,27 +68,38 @@ function processVideo({
         const command = ffmpeg(input);
 
         if (pad) {
-            // Logic for blurred background padding
+            // Blurred background padding (for vertical→landscape)
             command.complexFilter([
                 `split[main][blur]`,
-                `[blur]scale=${width}:${height}:force_original_aspect_ratio=increase,crop=${width}:${height},boxblur=20:10[bg]`,
+                `[blur]scale=${width}:${height}:force_original_aspect_ratio=increase,crop=${width}:${height},boxblur=15:5[bg]`,
                 `[main]scale=${width}:${height}:force_original_aspect_ratio=decrease[ov]`,
                 `[bg][ov]overlay=(W-w)/2:(H-h)/2`,
             ]);
         } else {
-            // Logic for Center Crop
+            // Center crop
             command.complexFilter([
                 `scale=${width}:${height}:force_original_aspect_ratio=increase,crop=${width}:${height}`,
             ]);
         }
 
         command
+            .outputOptions([
+                '-preset ultrafast',      // Fastest encoding
+                '-crf 23',                // Good quality (18-28, lower = better)
+                '-movflags +faststart',   // Web optimization
+                '-threads 0',             // Use all available threads
+                '-y',                     // Overwrite output
+            ])
+            .videoCodec('libx264')
+            .audioCodec('aac')
+            .audioBitrate('128k')
             .output(output)
             .on("end", () => resolve(output))
             .on("error", (err: any) => reject(err))
             .run();
     });
 }
+
 
 export async function POST(req: NextRequest) {
     try {
