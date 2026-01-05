@@ -1,62 +1,64 @@
-// Simple usage tracking for free tier
-// In production, use a proper database like Redis or Postgres
+"use client";
 
-const FREE_TIER_LIMIT = 3; // 3 conversions per day
+const STORAGE_KEY = "racio_usage";
+const DAILY_LIMIT = 3;
 
-interface UsageRecord {
+interface UsageData {
     count: number;
-    date: string;
+    date: string; // YYYY-MM-DD
 }
 
-// In-memory storage (resets on server restart - use Redis in production)
-const usageStore = new Map<string, UsageRecord>();
+export const checkUsage = (): boolean => {
+    if (typeof window === "undefined") return true;
 
-export function getUsageKey(ip: string): string {
-    return `usage:${ip}`;
-}
+    const today = new Date().toISOString().split("T")[0];
+    const stored = localStorage.getItem(STORAGE_KEY);
 
-export function getTodayString(): string {
-    return new Date().toISOString().split("T")[0];
-}
+    if (!stored) return true;
 
-export function checkUsageLimit(ip: string): { allowed: boolean; remaining: number } {
-    const key = getUsageKey(ip);
-    const today = getTodayString();
-    const record = usageStore.get(key);
+    const data: UsageData = JSON.parse(stored);
 
-    if (!record || record.date !== today) {
-        // Reset for new day
-        return { allowed: true, remaining: FREE_TIER_LIMIT };
+    if (data.date !== today) {
+        resetUsage();
+        return true;
     }
 
-    const remaining = Math.max(0, FREE_TIER_LIMIT - record.count);
-    return {
-        allowed: record.count < FREE_TIER_LIMIT,
-        remaining
-    };
-}
+    return data.count < DAILY_LIMIT;
+};
 
-export function incrementUsage(ip: string): void {
-    const key = getUsageKey(ip);
-    const today = getTodayString();
-    const record = usageStore.get(key);
+export const incrementUsage = () => {
+    if (typeof window === "undefined") return;
 
-    if (!record || record.date !== today) {
-        usageStore.set(key, { count: 1, date: today });
-    } else {
-        usageStore.set(key, { count: record.count + 1, date: today });
+    const today = new Date().toISOString().split("T")[0];
+    const stored = localStorage.getItem(STORAGE_KEY);
+
+    let count = 1;
+
+    if (stored) {
+        const data: UsageData = JSON.parse(stored);
+        if (data.date === today) {
+            count = data.count + 1;
+        }
     }
-}
 
-export function getUsageCount(ip: string): number {
-    const key = getUsageKey(ip);
-    const today = getTodayString();
-    const record = usageStore.get(key);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ count, date: today }));
+};
 
-    if (!record || record.date !== today) {
-        return 0;
-    }
-    return record.count;
-}
+export const getRemainingUses = (): number => {
+    if (typeof window === "undefined") return DAILY_LIMIT;
 
-export const FREE_LIMIT = FREE_TIER_LIMIT;
+    const today = new Date().toISOString().split("T")[0];
+    const stored = localStorage.getItem(STORAGE_KEY);
+
+    if (!stored) return DAILY_LIMIT;
+
+    const data: UsageData = JSON.parse(stored);
+    if (data.date !== today) return DAILY_LIMIT;
+
+    return Math.max(0, DAILY_LIMIT - data.count);
+};
+
+const resetUsage = () => {
+    const today = new Date().toISOString().split("T")[0];
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ count: 0, date: today }));
+};
