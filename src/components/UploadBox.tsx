@@ -48,13 +48,13 @@ export default function UploadBox({ onFileSelect, onUrlSubmit, isUrlLoading }: U
     };
 
     return (
-        <div className="w-full max-w-2xl mx-auto px-1">
-            {/* File Upload Box - Tappable Card */}
+        <div className="w-full space-y-6">
+            {/* Upload Card */}
             <div
-                className={`glass-panel relative overflow-hidden p-8 md:p-14 text-center transition-all duration-300 border-2 border-dashed cursor-pointer active:scale-[0.98] md:active:scale-100
+                className={`glass-card relative p-8 md:p-12 text-center cursor-pointer transition-all duration-300 group
           ${isDragOver
-                        ? "border-[#a855f7] bg-[#a855f7]/10 scale-[1.02]"
-                        : "border-white/10 hover:border-white/30 hover:bg-white/[0.04]"
+                        ? "border-purple-500 bg-purple-500/10 scale-[1.02]"
+                        : "hover:border-purple-500/40"
                     }
         `}
                 onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
@@ -62,24 +62,31 @@ export default function UploadBox({ onFileSelect, onUrlSubmit, isUrlLoading }: U
                 onDrop={handleDrop}
                 onClick={() => document.getElementById("file-upload")?.click()}
             >
-                <div className="flex flex-col items-center justify-center gap-4 md:gap-5 relative z-10">
-                    <div className={`p-4 md:p-5 rounded-2xl transition-all duration-300 ${isDragOver
-                            ? "bg-[#a855f7]/20 scale-110"
-                            : "bg-white/5 active:bg-white/10 md:group-hover:bg-white/10 md:group-hover:scale-105"
+                {/* Decorative gradient */}
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-blue-500/5 rounded-[24px] pointer-events-none" />
+
+                <div className="relative flex flex-col items-center gap-5">
+                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-300 ${isDragOver
+                            ? "bg-purple-500/30 scale-110"
+                            : "bg-purple-500/10 group-hover:bg-purple-500/20 group-hover:scale-105"
                         }`}>
-                        <Upload className={`w-8 h-8 md:w-10 md:h-10 transition-colors ${isDragOver ? "text-[#a855f7]" : "text-white/60 group-hover:text-white/80"
+                        <Upload className={`w-7 h-7 transition-colors ${isDragOver ? "text-purple-300" : "text-purple-400 group-hover:text-purple-300"
                             }`} />
                     </div>
+
                     <div>
-                        <h3 className="text-xl md:text-3xl font-bold mb-2 font-outfit">
-                            {selectedFile ? selectedFile.name : "Tap to Upload Video"}
+                        <h3 className="text-xl md:text-2xl font-bold font-outfit mb-2">
+                            {selectedFile ? selectedFile.name : "Drop your video here"}
                         </h3>
-                        <p className="text-white/40 text-sm md:text-lg">
+                        <p className="text-white/40 text-sm md:text-base">
                             {selectedFile
-                                ? `${formatFileSize(selectedFile.size)} • Tap to change`
-                                : <span className="hidden md:inline">or drag & drop here</span>
+                                ? `${formatFileSize(selectedFile.size)} • Click to change`
+                                : <>
+                                    <span className="hidden md:inline">or click to browse • </span>
+                                    <span className="md:hidden">Tap to select • </span>
+                                    MP4, MOV, MKV up to 500MB
+                                </>
                             }
-                            {!selectedFile && <span className="md:hidden">Select from gallery</span>}
                         </p>
                     </div>
 
@@ -88,53 +95,57 @@ export default function UploadBox({ onFileSelect, onUrlSubmit, isUrlLoading }: U
                         accept="video/*"
                         onChange={handleChange}
                         className="hidden"
-                        style={{ display: "none" }} // Force hide
+                        style={{ display: "none" }}
                         id="file-upload"
                     />
                 </div>
             </div>
 
             {/* Divider */}
-            <div className="flex items-center gap-4 my-6 md:my-8 px-2 w-full">
-                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
-                <span className="text-white/30 font-medium text-[10px] md:text-xs uppercase tracking-widest flex items-center gap-2">
-                    <Sparkles size={10} className="text-[#a855f7]" />
-                    or paste link
+            <div className="flex items-center gap-4">
+                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+                <span className="text-white/30 text-xs uppercase tracking-widest flex items-center gap-2">
+                    <Sparkles size={12} className="text-purple-400" />
+                    or paste URL
                 </span>
-                <div className="flex-1 h-px bg-gradient-to-l from-transparent via-white/10 to-transparent"></div>
+                <div className="flex-1 h-px bg-gradient-to-l from-transparent via-white/10 to-transparent" />
             </div>
 
-            {/* URL Input - Mobile Optimized (Stacked) */}
-            <form onSubmit={handleUrlSubmit} className="glass-panel w-full flex flex-col sm:flex-row items-stretch gap-3 p-3 sm:pl-5 sm:pr-2 sm:py-2">
-                <div className="flex items-center gap-3 flex-1 px-1">
-                    <LinkIcon className="text-white/30 flex-shrink-0" size={18} />
+            {/* URL Input */}
+            <form onSubmit={handleUrlSubmit} className="glass-card p-3 flex flex-col sm:flex-row items-stretch gap-3">
+                <div className="flex items-center gap-3 flex-1 px-3">
+                    <LinkIcon className="text-purple-400/50 flex-shrink-0" size={20} />
                     <input
                         type="text"
-                        placeholder="Paste X (Twitter) video link"
+                        placeholder="https://x.com/username/status/..."
                         value={url}
                         onChange={(e) => setUrl(e.target.value)}
-                        className="bg-transparent border-none outline-none flex-1 text-white placeholder:text-white/25 text-base py-2 w-full min-w-0"
+                        className="bg-transparent border-none outline-none flex-1 text-white placeholder:text-white/25 text-base py-2"
                         disabled={isUrlLoading}
                     />
                 </div>
                 <button
                     type="submit"
-                    className="btn-primary py-3 px-6 md:px-8 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base w-full sm:w-auto shrink-0"
+                    className="btn-primary py-3 px-8 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={!url.trim() || isUrlLoading}
                 >
                     {isUrlLoading ? (
                         <>
-                            <Loader2 size={16} className="animate-spin" />
+                            <Loader2 size={18} className="animate-spin" />
                             <span>Fetching...</span>
                         </>
                     ) : (
-                        "Go"
+                        <>
+                            <Sparkles size={16} />
+                            <span>Go</span>
+                        </>
                     )}
                 </button>
             </form>
 
-            <p className="mt-6 text-center text-white/25 text-[10px] md:text-sm px-4">
-                Max 500MB • MP4, MOV, MKV • Works with X/Twitter
+            {/* Trusted by badge */}
+            <p className="text-center text-white/20 text-xs">
+                Trusted by 500+ creators worldwide
             </p>
         </div>
     );
