@@ -1,11 +1,11 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import UploadBox from "@/components/UploadBox";
 import Processing from "@/components/Processing";
 import Results from "@/components/Results";
 import Pricing from "@/components/Pricing";
 import { checkUsage, incrementUsage, isProUser } from "@/lib/usage";
-import { Sparkles, Zap, Shield, Clock } from "lucide-react";
+import { Sparkles, Zap, Shield, Clock, Sun, Moon } from "lucide-react";
 
 export default function Home() {
   const [step, setStep] = useState<"upload" | "processing" | "results">("upload");
@@ -20,7 +20,29 @@ export default function Home() {
     title: "Daily Limit Reached",
     desc: "You've hit the limit of 3 free videos today. Upgrade to Pro for unlimited conversions."
   });
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
   const progressInterval = useRef<NodeJS.Timeout | null>(null);
+
+  // Theme handling
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("racio-theme") as "dark" | "light" | null;
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+    if (savedTheme) {
+      setTheme(savedTheme);
+      document.documentElement.setAttribute("data-theme", savedTheme);
+    } else if (!prefersDark) {
+      setTheme("light");
+      document.documentElement.setAttribute("data-theme", "light");
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === "dark" ? "light" : "dark";
+    setTheme(newTheme);
+    document.documentElement.setAttribute("data-theme", newTheme);
+    localStorage.setItem("racio-theme", newTheme);
+  };
 
   const checkLimit = () => {
     const allowed = checkUsage();
@@ -183,42 +205,33 @@ export default function Home() {
 
   return (
     <main className="min-h-screen relative overflow-hidden">
-      {/* Decorative Background Elements */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        {/* Large purple orb */}
-        <div className="absolute -top-[40%] -left-[20%] w-[800px] h-[800px] bg-gradient-to-br from-purple-600/30 to-blue-600/20 rounded-full blur-[120px] animate-pulse-glow" />
-        {/* Blue orb */}
-        <div className="absolute top-[60%] -right-[10%] w-[600px] h-[600px] bg-gradient-to-br from-blue-500/20 to-cyan-500/10 rounded-full blur-[100px]" />
-        {/* Small accent */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-gradient-to-br from-violet-500/10 to-fuchsia-500/5 rounded-full blur-[80px]" />
-      </div>
+      {/* Background Orbs (Dark mode only) */}
+      {theme === "dark" && (
+        <div className="fixed inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute -top-[30%] -left-[15%] w-[700px] h-[700px] bg-gradient-to-br from-purple-600/25 to-blue-600/15 rounded-full blur-[120px] animate-pulse-glow" />
+          <div className="absolute top-[50%] -right-[10%] w-[500px] h-[500px] bg-gradient-to-br from-blue-500/15 to-cyan-500/10 rounded-full blur-[100px]" />
+        </div>
+      )}
 
       {/* Header */}
-      <header className="relative z-20 w-full max-w-7xl mx-auto px-6 py-6">
+      <header className="relative z-20 w-full max-w-6xl mx-auto px-6 py-6">
         <nav className="flex items-center justify-between">
-          <div
-            className="flex items-center gap-3 cursor-pointer group"
-            onClick={handleReset}
-          >
-            <div className="w-10 h-10 bg-gradient-to-br from-violet-500 via-purple-500 to-fuchsia-500 rounded-xl flex items-center justify-center font-black text-xl shadow-lg shadow-purple-500/30 group-hover:shadow-purple-500/50 transition-shadow">
+          <div className="flex items-center gap-3 cursor-pointer group" onClick={handleReset}>
+            <div className="w-10 h-10 bg-gradient-to-br from-violet-500 via-purple-500 to-fuchsia-500 rounded-xl flex items-center justify-center font-black text-xl text-white shadow-lg shadow-purple-500/30 group-hover:shadow-purple-500/50 transition-shadow">
               R
             </div>
             <span className="text-xl font-bold tracking-tight font-outfit">RACIO</span>
           </div>
 
-          <div className="flex items-center gap-4">
-            <a href="#features" className="text-white/50 hover:text-white text-sm transition-colors hidden sm:block">
+          <div className="flex items-center gap-3">
+            <a href="#features" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm transition-colors hidden md:block px-3 py-2">
               Features
             </a>
-            <a href="#pricing" className="text-white/50 hover:text-white text-sm transition-colors hidden sm:block">
+            <a href="#pricing" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm transition-colors hidden md:block px-3 py-2">
               Pricing
             </a>
-            <button
-              onClick={scrollToPricing}
-              className="badge hover:bg-purple-500/20 transition-colors cursor-pointer"
-            >
-              <Sparkles size={14} />
-              Upgrade
+            <button onClick={toggleTheme} className="theme-toggle" aria-label="Toggle theme">
+              {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
             </button>
           </div>
         </nav>
@@ -226,16 +239,16 @@ export default function Home() {
 
       {/* Limit Modal */}
       {showLimitModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fade-in">
           <div className="glass-card p-10 max-w-md w-full text-center animate-fade-in-up">
             <div className="w-16 h-16 bg-gradient-to-br from-violet-500 to-fuchsia-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-purple-500/30">
               <Sparkles size={32} className="text-white" />
             </div>
             <h3 className="text-2xl font-bold mb-3 font-outfit">{limitMessage.title}</h3>
-            <p className="text-white/50 mb-8">{limitMessage.desc}</p>
+            <p className="text-[var(--text-muted)] mb-8">{limitMessage.desc}</p>
             <div className="flex flex-col gap-3">
               <button onClick={scrollToPricing} className="btn-primary">View Plans</button>
-              <button onClick={() => setShowLimitModal(false)} className="text-white/30 text-sm hover:text-white transition-colors">
+              <button onClick={() => setShowLimitModal(false)} className="text-[var(--text-muted)] text-sm hover:text-[var(--text-primary)] transition-colors">
                 Close
               </button>
             </div>
@@ -254,7 +267,7 @@ export default function Home() {
       )}
 
       {/* Hero Section */}
-      <section className="relative z-10 w-full max-w-7xl mx-auto px-6 pt-12 md:pt-20 pb-16">
+      <section className="relative z-10 w-full max-w-6xl mx-auto px-6 pt-16 md:pt-24 pb-20">
         {step === "upload" && (
           <div className="flex flex-col items-center">
             {/* Badge */}
@@ -264,20 +277,19 @@ export default function Home() {
             </div>
 
             {/* Headline */}
-            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-center mb-6 tracking-tight font-outfit animate-fade-in-up delay-100">
+            <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold text-center mb-6 tracking-tight font-outfit animate-fade-in-up delay-100">
               Paste Once.
               <br />
               <span className="text-gradient">Post Everywhere.</span>
             </h1>
 
             {/* Subheadline */}
-            <p className="text-lg md:text-xl text-white/50 text-center max-w-2xl mb-12 animate-fade-in-up delay-200">
-              Convert any video to <span className="text-white">Reels, Shorts & Feed</span> formats in seconds.
-              No editing skills required.
+            <p className="text-lg md:text-xl text-[var(--text-muted)] text-center max-w-xl mb-14 animate-fade-in-up delay-200">
+              Convert any video to <span className="text-[var(--text-primary)]">Reels, Shorts & Feed</span> formats in seconds.
             </p>
 
             {/* Upload Box */}
-            <div className="w-full max-w-2xl animate-fade-in-up delay-300">
+            <div className="w-full max-w-xl animate-fade-in-up delay-300">
               <UploadBox
                 onFileSelect={handleUpload}
                 onUrlSubmit={handleUrlSubmit}
@@ -298,12 +310,12 @@ export default function Home() {
 
       {/* Features Section */}
       {step === "upload" && (
-        <section id="features" className="relative z-10 w-full max-w-7xl mx-auto px-6 py-24">
-          <div className="text-center mb-16">
+        <section id="features" className="relative z-10 w-full max-w-6xl mx-auto px-6 py-20">
+          <div className="text-center mb-14">
             <h2 className="text-3xl md:text-4xl font-bold font-outfit mb-4">
               Why creators love <span className="text-gradient">RACIO</span>
             </h2>
-            <p className="text-white/40 max-w-xl mx-auto">
+            <p className="text-[var(--text-muted)] max-w-lg mx-auto">
               One video in, three optimized formats out. Ready for every platform.
             </p>
           </div>
@@ -314,8 +326,8 @@ export default function Home() {
                 <Zap size={24} className="text-violet-400" />
               </div>
               <h3 className="text-xl font-bold font-outfit mb-2">Lightning Fast</h3>
-              <p className="text-white/40 text-sm">
-                Process videos in seconds, not minutes. Our engine is optimized for speed.
+              <p className="text-[var(--text-muted)] text-sm">
+                Process videos in seconds, not minutes. Optimized for speed.
               </p>
             </div>
 
@@ -324,8 +336,8 @@ export default function Home() {
                 <Shield size={24} className="text-blue-400" />
               </div>
               <h3 className="text-xl font-bold font-outfit mb-2">Privacy First</h3>
-              <p className="text-white/40 text-sm">
-                Your videos are deleted after 1 hour. We never store or share your content.
+              <p className="text-[var(--text-muted)] text-sm">
+                Your videos are deleted after 1 hour. We never store or share.
               </p>
             </div>
 
@@ -334,7 +346,7 @@ export default function Home() {
                 <Clock size={24} className="text-fuchsia-400" />
               </div>
               <h3 className="text-xl font-bold font-outfit mb-2">Save Hours</h3>
-              <p className="text-white/40 text-sm">
+              <p className="text-[var(--text-muted)] text-sm">
                 Stop manually resizing. Get all formats in one click.
               </p>
             </div>
@@ -343,23 +355,23 @@ export default function Home() {
       )}
 
       {/* Pricing Section */}
-      <section id="pricing" className="relative z-10 border-t border-white/5">
+      <section id="pricing" className="relative z-10 border-t border-[var(--border-color)]">
         <Pricing />
       </section>
 
       {/* Footer */}
-      <footer className="relative z-10 w-full max-w-7xl mx-auto px-6 py-12 border-t border-white/5">
+      <footer className="relative z-10 w-full max-w-6xl mx-auto px-6 py-10 border-t border-[var(--border-color)]">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-violet-500 to-fuchsia-500 rounded-lg flex items-center justify-center font-bold text-sm">
+            <div className="w-8 h-8 bg-gradient-to-br from-violet-500 to-fuchsia-500 rounded-lg flex items-center justify-center font-bold text-sm text-white">
               R
             </div>
-            <span className="text-white/30 text-sm">RACIO — The Ratio Engine</span>
+            <span className="text-[var(--text-subtle)] text-sm">RACIO — The Ratio Engine</span>
           </div>
-          <div className="flex items-center gap-6 text-sm text-white/30">
-            <a href="#" className="hover:text-white transition-colors">Privacy</a>
-            <a href="#" className="hover:text-white transition-colors">Terms</a>
-            <a href="mailto:racioapp@gmail.com" className="hover:text-white transition-colors">Contact</a>
+          <div className="flex items-center gap-6 text-sm text-[var(--text-subtle)]">
+            <a href="#" className="hover:text-[var(--text-primary)] transition-colors">Privacy</a>
+            <a href="#" className="hover:text-[var(--text-primary)] transition-colors">Terms</a>
+            <a href="mailto:racioapp@gmail.com" className="hover:text-[var(--text-primary)] transition-colors">Contact</a>
           </div>
         </div>
       </footer>
