@@ -1,11 +1,33 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
-import UploadBox from "@/components/UploadBox";
-import Processing from "@/components/Processing";
-import Results from "@/components/Results";
-import Pricing from "@/components/Pricing";
+import React, { useState, useRef, CSSProperties } from "react";
+import { Upload, Link as LinkIcon, Loader2, Sparkles, Zap, Shield, Clock, Download, RefreshCcw, CheckCircle2, Package, Check, Star, Crown, Sun, Moon, X } from "lucide-react";
 import { checkUsage, incrementUsage, isProUser } from "@/lib/usage";
-import { Sparkles, Zap, Shield, Clock, Sun, Moon } from "lucide-react";
+
+// Payment Links
+const PAYMENT_LINKS = {
+  PRO: "https://buy.stripe.com/PLACEHOLDER",
+  LIFETIME: "https://buy.stripe.com/PLACEHOLDER",
+};
+
+// Style helpers
+const styles = {
+  dark: {
+    bg: "#0a0a0f",
+    cardBg: "rgba(255,255,255,0.05)",
+    border: "rgba(255,255,255,0.1)",
+    text: "#ffffff",
+    textSecondary: "rgba(255,255,255,0.6)",
+    textMuted: "rgba(255,255,255,0.4)",
+  },
+  light: {
+    bg: "#fafafa",
+    cardBg: "#ffffff",
+    border: "#e5e5e5",
+    text: "#1a1a2e",
+    textSecondary: "#4a4a6a",
+    textMuted: "#9ca3af",
+  },
+};
 
 export default function Home() {
   const [step, setStep] = useState<"upload" | "processing" | "results">("upload");
@@ -15,43 +37,56 @@ export default function Home() {
   const [progress, setProgress] = useState(0);
   const [stage, setStage] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [showLimitModal, setShowLimitModal] = useState(false);
-  const [limitMessage, setLimitMessage] = useState({
-    title: "Daily Limit Reached",
-    desc: "You've hit the limit of 3 free videos today. Upgrade to Pro for unlimited conversions."
-  });
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const [showModal, setShowModal] = useState(false);
+  const [modalContent, setModalContent] = useState({ title: "", desc: "" });
+  const [isDark, setIsDark] = useState(true);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [url, setUrl] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const progressInterval = useRef<NodeJS.Timeout | null>(null);
 
-  // Theme handling
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("racio-theme") as "dark" | "light" | null;
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const theme = isDark ? styles.dark : styles.light;
 
-    if (savedTheme) {
-      setTheme(savedTheme);
-      document.documentElement.setAttribute("data-theme", savedTheme);
-    } else if (!prefersDark) {
-      setTheme("light");
-      document.documentElement.setAttribute("data-theme", "light");
-    }
-  }, []);
+  const card: CSSProperties = {
+    background: theme.cardBg,
+    border: `1px solid ${theme.border}`,
+    borderRadius: 16,
+  };
 
-  const toggleTheme = () => {
-    const newTheme = theme === "dark" ? "light" : "dark";
-    setTheme(newTheme);
-    document.documentElement.setAttribute("data-theme", newTheme);
-    localStorage.setItem("racio-theme", newTheme);
+  const btn: CSSProperties = {
+    background: "linear-gradient(135deg, #8b5cf6 0%, #a855f7 50%, #d946ef 100%)",
+    color: "#fff",
+    border: "none",
+    borderRadius: 12,
+    padding: "14px 28px",
+    fontWeight: 600,
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+  };
+
+  const btnSecondary: CSSProperties = {
+    ...card,
+    padding: "14px 28px",
+    fontWeight: 500,
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    color: theme.textSecondary,
+  };
+
+  const showLimitModal = (title: string, desc: string) => {
+    setModalContent({ title, desc });
+    setShowModal(true);
   };
 
   const checkLimit = () => {
-    const allowed = checkUsage();
-    if (!allowed) {
-      setLimitMessage({
-        title: "Daily Limit Reached",
-        desc: "You've hit the limit of 3 free videos today. Upgrade to Pro for unlimited conversions."
-      });
-      setShowLimitModal(true);
+    if (!checkUsage()) {
+      showLimitModal("Daily Limit Reached", "You've used your 3 free videos today. Upgrade for unlimited.");
       return false;
     }
     return true;
@@ -59,130 +94,94 @@ export default function Home() {
 
   const simulateProgress = () => {
     const stages = [
-      { progress: 10, stage: "Analyzing video..." },
-      { progress: 30, stage: "Creating 9:16 (Reels)..." },
-      { progress: 55, stage: "Creating 1:1 (Feed)..." },
-      { progress: 80, stage: "Creating 16:9 (YouTube)..." },
+      { progress: 15, stage: "Analyzing video..." },
+      { progress: 40, stage: "Creating 9:16 (Reels)..." },
+      { progress: 65, stage: "Creating 1:1 (Feed)..." },
+      { progress: 85, stage: "Creating 16:9 (YouTube)..." },
       { progress: 95, stage: "Bundling files..." },
     ];
-
-    let currentIndex = 0;
+    let i = 0;
     setProgress(stages[0].progress);
     setStage(stages[0].stage);
-
     progressInterval.current = setInterval(() => {
-      currentIndex++;
-      if (currentIndex < stages.length) {
-        setProgress(stages[currentIndex].progress);
-        setStage(stages[currentIndex].stage);
+      i++;
+      if (i < stages.length) {
+        setProgress(stages[i].progress);
+        setStage(stages[i].stage);
       }
-    }, 1500);
+    }, 1200);
   };
 
   const stopProgress = () => {
-    if (progressInterval.current) {
-      clearInterval(progressInterval.current);
-      progressInterval.current = null;
-    }
+    if (progressInterval.current) clearInterval(progressInterval.current);
     setProgress(100);
     setStage("Complete!");
   };
 
-  const handleUpload = async (file: File) => {
+  const handleFileSelect = async (file: File) => {
     if (!checkLimit()) return;
-
+    setSelectedFile(file);
     setError(null);
     setStep("processing");
-    setProcessingMessage("Processing Video");
     simulateProgress();
 
     const formData = new FormData();
     formData.append("file", file);
 
     try {
-      const res = await fetch("/api/process", {
-        method: "POST",
-        body: formData,
-      });
-
+      const res = await fetch("/api/process", { method: "POST", body: formData });
       stopProgress();
-
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || "Upload failed");
-      }
-
-      const data = await res.json();
-      setResultsData(data);
+      if (!res.ok) throw new Error((await res.json()).error || "Upload failed");
+      setResultsData(await res.json());
       setStep("results");
       incrementUsage();
     } catch (e: any) {
       stopProgress();
-      console.error(e);
-      setError(e.message || "Something went wrong");
+      setError(e.message);
       setStep("upload");
     }
   };
 
-  const handleUrlSubmit = async (url: string) => {
+  const handleUrlSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!url.trim()) return;
+
     if (!isProUser()) {
-      setLimitMessage({
-        title: "Pro Feature Locked",
-        desc: "Downloading from X (Twitter) is a Pro feature. Upgrade to unlock."
-      });
-      setShowLimitModal(true);
+      showLimitModal("Pro Feature", "X/Twitter downloading is a Pro feature.");
       return;
     }
-
     if (!checkLimit()) return;
 
     setError(null);
     setIsUrlLoading(true);
 
     try {
-      setProcessingMessage("Downloading from X...");
-
       const fetchRes = await fetch("/api/fetch-url", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url }),
+        body: JSON.stringify({ url: url.trim() }),
       });
-
-      if (!fetchRes.ok) {
-        const err = await fetchRes.json();
-        throw new Error(err.error || "Failed to download video");
-      }
+      if (!fetchRes.ok) throw new Error((await fetchRes.json()).error || "Failed to download");
 
       const fetchData = await fetchRes.json();
       setIsUrlLoading(false);
       setStep("processing");
-      setProcessingMessage("Processing Video");
       simulateProgress();
 
       const processRes = await fetch("/api/process", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          tempPath: fetchData.tempPath,
-          sessionId: fetchData.sessionId,
-        }),
+        body: JSON.stringify({ tempPath: fetchData.tempPath, sessionId: fetchData.sessionId }),
       });
-
       stopProgress();
+      if (!processRes.ok) throw new Error((await processRes.json()).error || "Processing failed");
 
-      if (!processRes.ok) {
-        const err = await processRes.json();
-        throw new Error(err.error || "Processing failed");
-      }
-
-      const processData = await processRes.json();
-      setResultsData(processData);
+      setResultsData(await processRes.json());
       setStep("results");
       incrementUsage();
     } catch (e: any) {
       stopProgress();
-      console.error(e);
-      setError(e.message || "Something went wrong");
+      setError(e.message);
       setIsUrlLoading(false);
       setStep("upload");
     }
@@ -192,187 +191,276 @@ export default function Home() {
     stopProgress();
     setStep("upload");
     setResultsData(null);
-    setIsUrlLoading(false);
+    setSelectedFile(null);
+    setUrl("");
     setProgress(0);
     setStage("");
     setError(null);
   };
 
-  const scrollToPricing = () => {
-    setShowLimitModal(false);
-    document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
+  const formatSize = (bytes: number) => bytes < 1024 * 1024 ? `${(bytes / 1024).toFixed(1)} KB` : `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+
+  const formats: Record<string, { label: string; desc: string; icon: string }> = {
+    "reel_9-16": { label: "9:16", desc: "Reels & Shorts", icon: "📱" },
+    "feed_1-1": { label: "1:1", desc: "Instagram Feed", icon: "📷" },
+    "landscape_16-9": { label: "16:9", desc: "YouTube", icon: "🎬" },
   };
 
   return (
-    <main className="min-h-screen relative overflow-hidden">
-      {/* Background Orbs (Dark mode only) */}
-      {theme === "dark" && (
-        <div className="fixed inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute -top-[30%] -left-[15%] w-[700px] h-[700px] bg-gradient-to-br from-purple-600/25 to-blue-600/15 rounded-full blur-[120px] animate-pulse-glow" />
-          <div className="absolute top-[50%] -right-[10%] w-[500px] h-[500px] bg-gradient-to-br from-blue-500/15 to-cyan-500/10 rounded-full blur-[100px]" />
+    <main style={{ minHeight: "100vh", background: theme.bg, color: theme.text, transition: "all 0.3s" }}>
+      {/* Background (dark only) */}
+      {isDark && (
+        <div style={{ position: "fixed", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: "-20%", left: "10%", width: 600, height: 600, background: "rgba(139,92,246,0.15)", borderRadius: "50%", filter: "blur(120px)" }} />
+          <div style={{ position: "absolute", bottom: "-10%", right: "10%", width: 500, height: 500, background: "rgba(59,130,246,0.1)", borderRadius: "50%", filter: "blur(100px)" }} />
         </div>
       )}
 
       {/* Header */}
-      <header className="relative z-20 w-full max-w-6xl mx-auto px-6 py-6">
-        <nav className="flex items-center justify-between">
-          <div className="flex items-center gap-3 cursor-pointer group" onClick={handleReset}>
-            <div className="w-10 h-10 bg-gradient-to-br from-violet-500 via-purple-500 to-fuchsia-500 rounded-xl flex items-center justify-center font-black text-xl text-white shadow-lg shadow-purple-500/30 group-hover:shadow-purple-500/50 transition-shadow">
-              R
-            </div>
-            <span className="text-xl font-bold tracking-tight font-outfit">RACIO</span>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <a href="#features" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm transition-colors hidden md:block px-3 py-2">
-              Features
-            </a>
-            <a href="#pricing" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm transition-colors hidden md:block px-3 py-2">
-              Pricing
-            </a>
-            <button onClick={toggleTheme} className="theme-toggle" aria-label="Toggle theme">
-              {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-            </button>
-          </div>
-        </nav>
+      <header style={{ position: "relative", zIndex: 10, maxWidth: 1100, margin: "0 auto", padding: "24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }} onClick={handleReset}>
+          <div style={{ width: 40, height: 40, background: "linear-gradient(135deg, #8b5cf6, #d946ef)", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 900, fontSize: 18 }}>R</div>
+          <span style={{ fontSize: 20, fontWeight: 700, letterSpacing: -0.5 }}>RACIO</span>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <a href="#features" style={{ padding: "8px 16px", color: theme.textMuted, textDecoration: "none", fontSize: 14 }}>Features</a>
+          <a href="#pricing" style={{ padding: "8px 16px", color: theme.textMuted, textDecoration: "none", fontSize: 14 }}>Pricing</a>
+          <button onClick={() => setIsDark(!isDark)} style={{ ...card, width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: theme.textSecondary }}>
+            {isDark ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+        </div>
       </header>
 
-      {/* Limit Modal */}
-      {showLimitModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fade-in">
-          <div className="glass-card p-10 max-w-md w-full text-center animate-fade-in-up">
-            <div className="w-16 h-16 bg-gradient-to-br from-violet-500 to-fuchsia-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-purple-500/30">
-              <Sparkles size={32} className="text-white" />
+      {/* Modal */}
+      {showModal && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", padding: 16, background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)" }}>
+          <div style={{ ...card, padding: 40, maxWidth: 400, width: "100%", textAlign: "center" }} className="animate-fade-in-up">
+            <div style={{ width: 56, height: 56, background: "linear-gradient(135deg, #8b5cf6, #d946ef)", borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
+              <Sparkles size={28} color="#fff" />
             </div>
-            <h3 className="text-2xl font-bold mb-3 font-outfit">{limitMessage.title}</h3>
-            <p className="text-[var(--text-muted)] mb-8">{limitMessage.desc}</p>
-            <div className="flex flex-col gap-3">
-              <button onClick={scrollToPricing} className="btn-primary">View Plans</button>
-              <button onClick={() => setShowLimitModal(false)} className="text-[var(--text-muted)] text-sm hover:text-[var(--text-primary)] transition-colors">
-                Close
-              </button>
-            </div>
+            <h3 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8 }}>{modalContent.title}</h3>
+            <p style={{ color: theme.textMuted, marginBottom: 24 }}>{modalContent.desc}</p>
+            <button onClick={() => { setShowModal(false); document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" }); }} style={{ ...btn, width: "100%", marginBottom: 12 }}>View Plans</button>
+            <button onClick={() => setShowModal(false)} style={{ background: "none", border: "none", color: theme.textMuted, cursor: "pointer" }}>Close</button>
           </div>
         </div>
       )}
 
       {/* Error Toast */}
       {error && (
-        <div className="fixed top-20 left-4 right-4 md:left-auto md:right-6 md:max-w-md z-50 animate-fade-in-up">
-          <div className="glass-card bg-red-500/10 border-red-500/30 px-5 py-4 flex items-center gap-3">
-            <span className="text-red-400 text-sm flex-1">{error}</span>
-            <button onClick={() => setError(null)} className="text-red-400/60 hover:text-red-400 text-lg">×</button>
+        <div style={{ position: "fixed", top: 80, left: 16, right: 16, maxWidth: 400, marginLeft: "auto", zIndex: 50 }}>
+          <div style={{ ...card, padding: "12px 16px", display: "flex", alignItems: "center", gap: 12, borderColor: "rgba(239,68,68,0.3)" }}>
+            <span style={{ color: "#f87171", flex: 1, fontSize: 14 }}>{error}</span>
+            <button onClick={() => setError(null)} style={{ background: "none", border: "none", color: "#f87171", cursor: "pointer" }}><X size={18} /></button>
           </div>
         </div>
       )}
 
-      {/* Hero Section */}
-      <section className="relative z-10 w-full max-w-6xl mx-auto px-6 pt-16 md:pt-24 pb-20">
+      {/* Hero */}
+      <section style={{ position: "relative", zIndex: 10, maxWidth: 700, margin: "0 auto", padding: "80px 24px", textAlign: "center" }}>
         {step === "upload" && (
-          <div className="flex flex-col items-center">
-            {/* Badge */}
-            <div className="badge mb-8 animate-fade-in-up">
-              <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-              The Ratio Engine
+          <>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, ...card, padding: "10px 18px", borderRadius: 100, marginBottom: 32 }} className="animate-fade-in-up">
+              <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#4ade80" }} className="animate-pulse" />
+              <span style={{ fontSize: 14, color: theme.textSecondary }}>The Ratio Engine</span>
             </div>
 
-            {/* Headline */}
-            <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold text-center mb-6 tracking-tight font-outfit animate-fade-in-up delay-100">
-              Paste Once.
-              <br />
+            <h1 style={{ fontSize: "clamp(40px, 8vw, 72px)", fontWeight: 700, letterSpacing: -2, marginBottom: 24, lineHeight: 1 }} className="animate-fade-in-up delay-100">
+              Paste Once.<br />
               <span className="text-gradient">Post Everywhere.</span>
             </h1>
 
-            {/* Subheadline */}
-            <p className="text-lg md:text-xl text-[var(--text-muted)] text-center max-w-xl mb-14 animate-fade-in-up delay-200">
-              Convert any video to <span className="text-[var(--text-primary)]">Reels, Shorts & Feed</span> formats in seconds.
+            <p style={{ fontSize: 18, color: theme.textSecondary, maxWidth: 480, margin: "0 auto 48px" }} className="animate-fade-in-up delay-200">
+              Convert any video to Reels, Shorts & Feed formats in seconds.
             </p>
 
-            {/* Upload Box */}
-            <div className="w-full max-w-xl animate-fade-in-up delay-300">
-              <UploadBox
-                onFileSelect={handleUpload}
-                onUrlSubmit={handleUrlSubmit}
-                isUrlLoading={isUrlLoading}
-              />
+            {/* Upload */}
+            <div className="animate-fade-in-up delay-300">
+              <div
+                style={{ ...card, padding: 48, borderStyle: "dashed", borderWidth: 2, borderColor: isDragOver ? "#8b5cf6" : theme.border, cursor: "pointer", marginBottom: 24, transition: "all 0.2s" }}
+                onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
+                onDragLeave={() => setIsDragOver(false)}
+                onDrop={(e) => { e.preventDefault(); setIsDragOver(false); if (e.dataTransfer.files[0]?.type.startsWith("video/")) handleFileSelect(e.dataTransfer.files[0]); }}
+                onClick={() => document.getElementById("file-input")?.click()}
+              >
+                <Upload size={40} color={theme.textMuted} style={{ margin: "0 auto 16px" }} />
+                <p style={{ fontWeight: 600, marginBottom: 4 }}>{selectedFile ? selectedFile.name : "Drop your video here"}</p>
+                <p style={{ fontSize: 14, color: theme.textMuted }}>{selectedFile ? formatSize(selectedFile.size) : "or click to browse • MP4, MOV up to 500MB"}</p>
+                <input type="file" id="file-input" accept="video/*" style={{ display: "none" }} onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0])} />
+              </div>
+
+              <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24 }}>
+                <div style={{ flex: 1, height: 1, background: theme.border }} />
+                <span style={{ fontSize: 12, color: theme.textMuted, textTransform: "uppercase", letterSpacing: 1 }}>or paste URL</span>
+                <div style={{ flex: 1, height: 1, background: theme.border }} />
+              </div>
+
+              <form onSubmit={handleUrlSubmit} style={{ ...card, padding: 8, display: "flex", flexWrap: "wrap", gap: 8 }}>
+                <div style={{ flex: 1, minWidth: 200, display: "flex", alignItems: "center", gap: 12, padding: "0 12px" }}>
+                  <LinkIcon size={18} color={theme.textMuted} />
+                  <input
+                    type="text"
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    placeholder="https://x.com/username/status/..."
+                    style={{ flex: 1, background: "transparent", border: "none", outline: "none", color: theme.text, fontSize: 14, padding: "12px 0" }}
+                    disabled={isUrlLoading}
+                  />
+                </div>
+                <button type="submit" disabled={!url.trim() || isUrlLoading} style={{ ...btn, opacity: !url.trim() || isUrlLoading ? 0.5 : 1 }}>
+                  {isUrlLoading ? <><Loader2 size={16} className="animate-spin" /> Fetching...</> : <><Sparkles size={16} /> Go</>}
+                </button>
+              </form>
+
+              <p style={{ marginTop: 24, fontSize: 12, color: theme.textMuted }}>Trusted by 500+ creators</p>
             </div>
-          </div>
+          </>
         )}
 
         {step === "processing" && (
-          <Processing message={processingMessage} progress={progress} stage={stage} />
+          <div style={{ padding: "80px 0" }}>
+            <div style={{ position: "relative", width: 80, height: 80, margin: "0 auto 32px" }}>
+              <div style={{ position: "absolute", inset: 0, background: "rgba(139,92,246,0.3)", borderRadius: "50%", filter: "blur(20px)" }} className="animate-pulse" />
+              <div style={{ ...card, width: 80, height: 80, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+                <Loader2 size={36} color="#a855f7" className="animate-spin" />
+              </div>
+            </div>
+            <h2 style={{ fontSize: 28, fontWeight: 700, marginBottom: 8 }}>{processingMessage}</h2>
+            <p style={{ color: theme.textMuted }}>{stage}</p>
+            {progress > 0 && (
+              <div style={{ maxWidth: 300, margin: "32px auto 0" }}>
+                <div style={{ height: 8, background: theme.border, borderRadius: 100, overflow: "hidden" }}>
+                  <div style={{ height: "100%", width: `${progress}%`, background: "linear-gradient(90deg, #8b5cf6, #d946ef)", borderRadius: 100, transition: "width 0.5s" }} />
+                </div>
+                <p style={{ fontSize: 14, color: theme.textMuted, marginTop: 12 }}>{progress}%</p>
+              </div>
+            )}
+          </div>
         )}
 
         {step === "results" && resultsData && (
-          <Results data={resultsData} onReset={handleReset} />
+          <div style={{ padding: "40px 0" }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 18px", borderRadius: 100, background: "rgba(74,222,128,0.1)", border: "1px solid rgba(74,222,128,0.2)", marginBottom: 24 }}>
+              <CheckCircle2 size={16} color="#4ade80" />
+              <span style={{ fontSize: 14, color: "#4ade80", fontWeight: 500 }}>Ready!</span>
+            </div>
+            <h2 style={{ fontSize: 32, fontWeight: 700, marginBottom: 8 }}>Your Videos Are <span className="text-gradient">Ready</span></h2>
+            <p style={{ color: theme.textMuted, marginBottom: 32 }}>3 formats optimized for every platform</p>
+
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 12, justifyContent: "center", marginBottom: 40 }}>
+              <a href={resultsData.zip} download style={{ ...btn, textDecoration: "none" }}><Package size={18} /> Download All</a>
+              <button onClick={handleReset} style={btnSecondary}><RefreshCcw size={18} /> Process Another</button>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, textAlign: "left" }}>
+              {resultsData.files.map((file: any) => {
+                const info = formats[file.name] || { label: file.name, desc: "Video", icon: "🎥" };
+                return (
+                  <div key={file.name} style={{ ...card, padding: 20 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+                      <span style={{ fontSize: 24 }}>{info.icon}</span>
+                      <div>
+                        <p style={{ fontWeight: 700 }}>{info.label}</p>
+                        <p style={{ fontSize: 12, color: theme.textMuted }}>{info.desc}</p>
+                      </div>
+                    </div>
+                    <a href={file.url} download style={{ ...btnSecondary, width: "100%", fontSize: 14, padding: "10px 16px", textDecoration: "none" }}><Download size={14} /> Download</a>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         )}
       </section>
 
-      {/* Features Section */}
+      {/* Features */}
       {step === "upload" && (
-        <section id="features" className="relative z-10 w-full max-w-6xl mx-auto px-6 py-20">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl md:text-4xl font-bold font-outfit mb-4">
-              Why creators love <span className="text-gradient">RACIO</span>
-            </h2>
-            <p className="text-[var(--text-muted)] max-w-lg mx-auto">
-              One video in, three optimized formats out. Ready for every platform.
-            </p>
-          </div>
+        <section id="features" style={{ position: "relative", zIndex: 10, maxWidth: 1100, margin: "0 auto", padding: "80px 24px", borderTop: `1px solid ${theme.border}` }}>
+          <h2 style={{ fontSize: 32, fontWeight: 700, textAlign: "center", marginBottom: 16 }}>Why creators love <span className="text-gradient">RACIO</span></h2>
+          <p style={{ textAlign: "center", color: theme.textMuted, marginBottom: 48 }}>One video in, three formats out.</p>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="feature-card group">
-              <div className="w-12 h-12 bg-gradient-to-br from-violet-500/20 to-purple-500/10 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
-                <Zap size={24} className="text-violet-400" />
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 24 }}>
+            {[
+              { icon: Zap, title: "Lightning Fast", desc: "Process in seconds, not minutes.", color: "#a78bfa" },
+              { icon: Shield, title: "Privacy First", desc: "Files deleted after 1 hour.", color: "#60a5fa" },
+              { icon: Clock, title: "Save Hours", desc: "All formats in one click.", color: "#f472b6" },
+            ].map(({ icon: Icon, title, desc, color }) => (
+              <div key={title} style={{ ...card, padding: 28 }}>
+                <div style={{ width: 48, height: 48, background: `${color}20`, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
+                  <Icon size={24} color={color} />
+                </div>
+                <h3 style={{ fontWeight: 700, marginBottom: 4 }}>{title}</h3>
+                <p style={{ fontSize: 14, color: theme.textMuted }}>{desc}</p>
               </div>
-              <h3 className="text-xl font-bold font-outfit mb-2">Lightning Fast</h3>
-              <p className="text-[var(--text-muted)] text-sm">
-                Process videos in seconds, not minutes. Optimized for speed.
-              </p>
-            </div>
-
-            <div className="feature-card group">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500/20 to-cyan-500/10 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
-                <Shield size={24} className="text-blue-400" />
-              </div>
-              <h3 className="text-xl font-bold font-outfit mb-2">Privacy First</h3>
-              <p className="text-[var(--text-muted)] text-sm">
-                Your videos are deleted after 1 hour. We never store or share.
-              </p>
-            </div>
-
-            <div className="feature-card group">
-              <div className="w-12 h-12 bg-gradient-to-br from-fuchsia-500/20 to-pink-500/10 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
-                <Clock size={24} className="text-fuchsia-400" />
-              </div>
-              <h3 className="text-xl font-bold font-outfit mb-2">Save Hours</h3>
-              <p className="text-[var(--text-muted)] text-sm">
-                Stop manually resizing. Get all formats in one click.
-              </p>
-            </div>
+            ))}
           </div>
         </section>
       )}
 
-      {/* Pricing Section */}
-      <section id="pricing" className="relative z-10 border-t border-[var(--border-color)]">
-        <Pricing />
+      {/* Pricing */}
+      <section id="pricing" style={{ position: "relative", zIndex: 10, maxWidth: 900, margin: "0 auto", padding: "80px 24px", borderTop: `1px solid ${theme.border}` }}>
+        <h2 style={{ fontSize: 32, fontWeight: 700, textAlign: "center", marginBottom: 16 }}>Simple <span className="text-gradient">Pricing</span></h2>
+        <p style={{ textAlign: "center", color: theme.textMuted, marginBottom: 48 }}>Start free. Upgrade when you need more.</p>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 20 }}>
+          {/* Free */}
+          <div style={{ ...card, padding: 28 }}>
+            <Zap size={24} color={theme.textMuted} />
+            <h3 style={{ fontSize: 20, fontWeight: 700, marginTop: 16, marginBottom: 4 }}>Starter</h3>
+            <p style={{ fontSize: 28, fontWeight: 700, marginBottom: 20 }}>$0 <span style={{ fontSize: 14, fontWeight: 400, color: theme.textMuted }}>/forever</span></p>
+            <ul style={{ listStyle: "none", marginBottom: 24 }}>
+              {["3 videos/day", "Standard speed", "50MB max"].map(f => (
+                <li key={f} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, fontSize: 14, color: theme.textSecondary }}>
+                  <Check size={14} color={theme.textMuted} /> {f}
+                </li>
+              ))}
+            </ul>
+            <button disabled style={{ ...btnSecondary, width: "100%", opacity: 0.5, cursor: "default" }}>Current Plan</button>
+          </div>
+
+          {/* Pro */}
+          <div style={{ ...card, padding: 28, borderColor: "#8b5cf6", borderWidth: 2, position: "relative" }}>
+            <div style={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", background: "linear-gradient(90deg, #8b5cf6, #d946ef)", padding: "4px 12px", borderRadius: 100, fontSize: 10, fontWeight: 700, color: "#fff", textTransform: "uppercase" }}>Popular</div>
+            <Star size={24} color="#a855f7" />
+            <h3 style={{ fontSize: 20, fontWeight: 700, marginTop: 16, marginBottom: 4 }}>Pro</h3>
+            <p style={{ fontSize: 28, fontWeight: 700, marginBottom: 20 }}>$9 <span style={{ fontSize: 14, fontWeight: 400, color: theme.textMuted }}>/mo</span></p>
+            <ul style={{ listStyle: "none", marginBottom: 24 }}>
+              {["Unlimited videos", "5x faster", "X/Twitter downloader"].map(f => (
+                <li key={f} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, fontSize: 14 }}>
+                  <Check size={14} color="#4ade80" /> {f}
+                </li>
+              ))}
+            </ul>
+            <a href={PAYMENT_LINKS.PRO} style={{ ...btn, width: "100%", textDecoration: "none" }}>Get Pro</a>
+          </div>
+
+          {/* Lifetime */}
+          <div style={{ ...card, padding: 28 }}>
+            <Crown size={24} color="#f472b6" />
+            <h3 style={{ fontSize: 20, fontWeight: 700, marginTop: 16, marginBottom: 4 }}>Lifetime</h3>
+            <p style={{ fontSize: 28, fontWeight: 700, marginBottom: 20 }}>$49 <span style={{ fontSize: 14, fontWeight: 400, color: theme.textMuted }}>/once</span></p>
+            <ul style={{ listStyle: "none", marginBottom: 24 }}>
+              {["Everything in Pro", "Forever access", "Future updates"].map(f => (
+                <li key={f} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, fontSize: 14, color: theme.textSecondary }}>
+                  <Check size={14} color="#f472b6" /> {f}
+                </li>
+              ))}
+            </ul>
+            <a href={PAYMENT_LINKS.LIFETIME} style={{ ...btnSecondary, width: "100%", textDecoration: "none" }}>Buy Lifetime</a>
+          </div>
+        </div>
       </section>
 
       {/* Footer */}
-      <footer className="relative z-10 w-full max-w-6xl mx-auto px-6 py-10 border-t border-[var(--border-color)]">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-violet-500 to-fuchsia-500 rounded-lg flex items-center justify-center font-bold text-sm text-white">
-              R
-            </div>
-            <span className="text-[var(--text-subtle)] text-sm">RACIO — The Ratio Engine</span>
-          </div>
-          <div className="flex items-center gap-6 text-sm text-[var(--text-subtle)]">
-            <a href="#" className="hover:text-[var(--text-primary)] transition-colors">Privacy</a>
-            <a href="#" className="hover:text-[var(--text-primary)] transition-colors">Terms</a>
-            <a href="mailto:racioapp@gmail.com" className="hover:text-[var(--text-primary)] transition-colors">Contact</a>
-          </div>
+      <footer style={{ position: "relative", zIndex: 10, maxWidth: 1100, margin: "0 auto", padding: "32px 24px", borderTop: `1px solid ${theme.border}`, display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ width: 32, height: 32, background: "linear-gradient(135deg, #8b5cf6, #d946ef)", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700, fontSize: 14 }}>R</div>
+          <span style={{ fontSize: 14, color: theme.textMuted }}>RACIO — The Ratio Engine</span>
+        </div>
+        <div style={{ display: "flex", gap: 24 }}>
+          <a href="#" style={{ fontSize: 14, color: theme.textMuted, textDecoration: "none" }}>Privacy</a>
+          <a href="#" style={{ fontSize: 14, color: theme.textMuted, textDecoration: "none" }}>Terms</a>
+          <a href="mailto:racioapp@gmail.com" style={{ fontSize: 14, color: theme.textMuted, textDecoration: "none" }}>Contact</a>
         </div>
       </footer>
     </main>
