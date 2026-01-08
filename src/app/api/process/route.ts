@@ -173,27 +173,27 @@ export async function POST(req: NextRequest) {
         // Smart Strategy
         const targets = [];
 
-        // 1. 9:16 (Reels/Shorts)
+        // 1. 9:16 (Reels/Shorts) - 720x1280 for speed
         targets.push({
             name: "reel_9-16",
-            width: 1080,
-            height: 1920,
+            width: 720,
+            height: 1280,
             pad: isVertical,
         });
 
-        // 2. 1:1 (Feed)
+        // 2. 1:1 (Feed) - 720x720 for speed
         targets.push({
             name: "feed_1-1",
-            width: 1080,
-            height: 1080,
+            width: 720,
+            height: 720,
             pad: false,
         });
 
-        // 3. 16:9 (YouTube)
+        // 3. 16:9 (YouTube) - 1280x720 for speed
         targets.push({
             name: "landscape_16-9",
-            width: 1920,
-            height: 1080,
+            width: 1280,
+            height: 720,
             pad: true,
         });
 
@@ -214,7 +214,7 @@ export async function POST(req: NextRequest) {
         // Create ZIP
         const zipPath = path.join(tempDir, "racio-bundle.zip");
         const output = createWriteStream(zipPath);
-        const archive = archiver("zip", { zlib: { level: 9 } });
+        const archive = archiver("zip", { zlib: { level: 1 } }); // Fast compression
 
         await new Promise<void>((resolve, reject) => {
             output.on("close", () => resolve());
