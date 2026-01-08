@@ -43,7 +43,17 @@ export default function Home() {
   const [isDragOver, setIsDragOver] = useState(false);
   const [url, setUrl] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isPro, setIsPro] = useState(false);
+  const [isLifetime, setIsLifetime] = useState(false);
   const progressInterval = useRef<NodeJS.Timeout | null>(null);
+
+  // Check Pro/Lifetime status on mount
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      setIsPro(localStorage.getItem("racio_pro") === "true");
+      setIsLifetime(localStorage.getItem("racio_lifetime") === "true");
+    }
+  }, []);
 
   const theme = isDark ? styles.dark : styles.light;
 
@@ -218,8 +228,22 @@ export default function Home() {
 
       {/* Header */}
       <header style={{ position: "relative", zIndex: 10, maxWidth: 1100, margin: "0 auto", padding: "24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", alignItems: "center", cursor: "pointer" }} onClick={handleReset}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }} onClick={handleReset}>
           <img src="/logo.png" alt="RACIO" style={{ height: 36 }} />
+          {(isPro || isLifetime) && (
+            <span style={{
+              padding: "4px 10px",
+              borderRadius: 6,
+              fontSize: 11,
+              fontWeight: 600,
+              background: isLifetime ? "linear-gradient(135deg, #fbbf24, #f59e0b)" : "linear-gradient(135deg, #8b5cf6, #a855f7)",
+              color: "#fff",
+              textTransform: "uppercase",
+              letterSpacing: 0.5
+            }}>
+              {isLifetime ? "Lifetime" : "Pro"}
+            </span>
+          )}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <a href="#features" style={{ padding: "8px 16px", color: theme.textMuted, textDecoration: "none", fontSize: 14 }}>Features</a>
@@ -418,9 +442,9 @@ export default function Home() {
           </div>
 
           {/* Pro */}
-          <div style={{ ...card, padding: 28, borderColor: "#8b5cf6", borderWidth: 2, position: "relative" }}>
-            <div style={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", background: "linear-gradient(90deg, #8b5cf6, #d946ef)", padding: "4px 12px", borderRadius: 100, fontSize: 10, fontWeight: 700, color: "#fff", textTransform: "uppercase" }}>Popular</div>
-            <Star size={24} color="#a855f7" />
+          <div style={{ ...card, padding: 28, borderColor: isPro && !isLifetime ? "#4ade80" : "#8b5cf6", borderWidth: 2, position: "relative" }}>
+            <div style={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", background: isPro && !isLifetime ? "linear-gradient(90deg, #4ade80, #22c55e)" : "linear-gradient(90deg, #8b5cf6, #d946ef)", padding: "4px 12px", borderRadius: 100, fontSize: 10, fontWeight: 700, color: "#fff", textTransform: "uppercase" }}>{isPro && !isLifetime ? "Active" : "Popular"}</div>
+            <Star size={24} color={isPro && !isLifetime ? "#4ade80" : "#a855f7"} />
             <h3 style={{ fontSize: 20, fontWeight: 700, marginTop: 16, marginBottom: 4 }}>Pro</h3>
             <p style={{ fontSize: 28, fontWeight: 700, marginBottom: 20 }}>$9 <span style={{ fontSize: 14, fontWeight: 400, color: theme.textMuted }}>/mo</span></p>
             <ul style={{ listStyle: "none", marginBottom: 24 }}>
@@ -430,22 +454,35 @@ export default function Home() {
                 </li>
               ))}
             </ul>
-            <a href={PAYMENT_LINKS.PRO} style={{ ...btn, width: "100%", textDecoration: "none" }}>Get Pro</a>
+            {isPro && !isLifetime ? (
+              <button disabled style={{ ...btnSecondary, width: "100%", borderColor: "#4ade80", color: "#4ade80", cursor: "default" }}>✓ Active</button>
+            ) : isLifetime ? (
+              <button disabled style={{ ...btnSecondary, width: "100%", opacity: 0.5, cursor: "default" }}>Included in Lifetime</button>
+            ) : (
+              <a href={PAYMENT_LINKS.PRO} style={{ ...btn, width: "100%", textDecoration: "none" }}>Get Pro</a>
+            )}
           </div>
 
           {/* Lifetime */}
-          <div style={{ ...card, padding: 28 }}>
-            <Crown size={24} color="#f472b6" />
+          <div style={{ ...card, padding: 28, borderColor: isLifetime ? "#fbbf24" : theme.border, borderWidth: isLifetime ? 2 : 1, position: "relative" }}>
+            {isLifetime && (
+              <div style={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", background: "linear-gradient(90deg, #fbbf24, #f59e0b)", padding: "4px 12px", borderRadius: 100, fontSize: 10, fontWeight: 700, color: "#000", textTransform: "uppercase" }}>Active</div>
+            )}
+            <Crown size={24} color={isLifetime ? "#fbbf24" : "#f472b6"} />
             <h3 style={{ fontSize: 20, fontWeight: 700, marginTop: 16, marginBottom: 4 }}>Lifetime</h3>
             <p style={{ fontSize: 28, fontWeight: 700, marginBottom: 20 }}>$49 <span style={{ fontSize: 14, fontWeight: 400, color: theme.textMuted }}>/once</span></p>
             <ul style={{ listStyle: "none", marginBottom: 24 }}>
               {["Everything in Pro", "Forever access", "Future updates"].map(f => (
                 <li key={f} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, fontSize: 14, color: theme.textSecondary }}>
-                  <Check size={14} color="#f472b6" /> {f}
+                  <Check size={14} color={isLifetime ? "#fbbf24" : "#f472b6"} /> {f}
                 </li>
               ))}
             </ul>
-            <a href={PAYMENT_LINKS.LIFETIME} style={{ ...btnSecondary, width: "100%", textDecoration: "none" }}>Buy Lifetime</a>
+            {isLifetime ? (
+              <button disabled style={{ ...btnSecondary, width: "100%", borderColor: "#fbbf24", color: "#fbbf24", cursor: "default" }}>✓ Active Forever</button>
+            ) : (
+              <a href={PAYMENT_LINKS.LIFETIME} style={{ ...btnSecondary, width: "100%", textDecoration: "none" }}>Buy Lifetime</a>
+            )}
           </div>
         </div>
       </section>
