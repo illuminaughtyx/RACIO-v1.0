@@ -5,8 +5,8 @@ import { checkUsage, incrementUsage, isProUser } from "@/lib/usage";
 
 // Payment Links
 const PAYMENT_LINKS = {
-  PRO: "https://buy.stripe.com/PLACEHOLDER",
-  LIFETIME: "https://buy.stripe.com/PLACEHOLDER",
+  PRO: "https://racioapp.lemonsqueezy.com/checkout/buy/720fcdaa-b668-4d65-94a6-1e4f254e9892",
+  LIFETIME: "https://racioapp.lemonsqueezy.com/checkout/buy/0509fbfb-5fcc-4ad7-9fd4-4db48c440e90",
 };
 
 // Style helpers
