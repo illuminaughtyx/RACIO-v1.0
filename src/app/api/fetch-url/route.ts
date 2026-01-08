@@ -10,6 +10,7 @@ function isValidTwitterUrl(url: string): boolean {
     const patterns = [
         /^https?:\/\/(www\.)?(twitter|x)\.com\/\w+\/status\/\d+/,
         /^https?:\/\/(www\.)?t\.co\/\w+/,
+        /^https?:\/\/(www\.)?(twitter|x)\.com\/i\/status\/\d+/,
     ];
     return patterns.some(p => p.test(url));
 }
@@ -24,7 +25,7 @@ export async function POST(req: NextRequest) {
         }
 
         if (!isValidTwitterUrl(url)) {
-            return NextResponse.json({ error: "Invalid Twitter/X URL" }, { status: 400 });
+            return NextResponse.json({ error: "Invalid Twitter/X URL. Please paste a direct tweet link." }, { status: 400 });
         }
 
         // Setup workspace
@@ -34,26 +35,47 @@ export async function POST(req: NextRequest) {
 
         const outputPath = path.join(tempDir, "input.mp4");
 
-        // Download video using system yt-dlp
+        // Download video using system yt-dlp with improved options
         await new Promise<void>((resolve, reject) => {
             const args = [
                 url,
                 "-o", outputPath,
-                "-f", "best[ext=mp4]/best",
+                "-f", "best[ext=mp4]/bestvideo[ext=mp4]+bestaudio[ext=m4a]/best",
                 "--no-playlist",
                 "--no-check-certificate",
-                "--retries", "3"
+                "--retries", "5",
+                "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                "--extractor-args", "twitter:api=syndication",
+                "--socket-timeout", "30",
             ];
 
             const process = spawn("yt-dlp", args);
 
+            let stderr = "";
+
+            process.stderr?.on("data", (data) => {
+                stderr += data.toString();
+            });
+
             process.on("close", (code) => {
-                if (code === 0) resolve();
-                else reject(new Error(`yt-dlp exited with code ${code}`));
+                if (code === 0) {
+                    resolve();
+                } else {
+                    // Check for common error messages
+                    if (stderr.includes("Private video") || stderr.includes("protected")) {
+                        reject(new Error("This video is private or protected"));
+                    } else if (stderr.includes("This tweet is unavailable") || stderr.includes("No video")) {
+                        reject(new Error("No video found in this tweet"));
+                    } else if (stderr.includes("rate limit") || stderr.includes("429")) {
+                        reject(new Error("X/Twitter rate limit reached. Please try again later."));
+                    } else {
+                        reject(new Error("Failed to download video. The tweet may be private or no longer available."));
+                    }
+                }
             });
 
             process.on("error", (err) => {
-                reject(err);
+                reject(new Error("Download service unavailable. Please try again."));
             });
         });
 
