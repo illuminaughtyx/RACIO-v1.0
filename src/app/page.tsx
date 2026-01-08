@@ -45,6 +45,7 @@ export default function Home() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isPro, setIsPro] = useState(false);
   const [isLifetime, setIsLifetime] = useState(false);
+  const [downloadedAll, setDownloadedAll] = useState(false);
   const progressInterval = useRef<NodeJS.Timeout | null>(null);
 
   // Check Pro/Lifetime status on mount
@@ -208,6 +209,7 @@ export default function Home() {
     setProgress(0);
     setStage("");
     setError(null);
+    setDownloadedAll(false);
   };
 
   const formatSize = (bytes: number) => bytes < 1024 * 1024 ? `${(bytes / 1024).toFixed(1)} KB` : `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
@@ -373,15 +375,22 @@ export default function Home() {
             <p style={{ color: theme.textMuted, marginBottom: 32 }}>3 formats optimized for every platform</p>
 
             <div style={{ display: "flex", flexWrap: "wrap", gap: 12, justifyContent: "center", marginBottom: 40 }}>
-              <a href={resultsData.zip} download style={{ ...btn, textDecoration: "none" }}><Package size={18} /> Download All</a>
+              <a href={resultsData.zip} download onClick={() => setDownloadedAll(true)} style={{ ...btn, textDecoration: "none" }}><Package size={18} /> Download All</a>
               <button onClick={handleReset} style={btnSecondary}><RefreshCcw size={18} /> Process Another</button>
             </div>
+
+            {downloadedAll && (
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 18px", borderRadius: 100, background: "rgba(74,222,128,0.1)", border: "1px solid rgba(74,222,128,0.2)", marginBottom: 24 }}>
+                <CheckCircle2 size={16} color="#4ade80" />
+                <span style={{ fontSize: 14, color: "#4ade80", fontWeight: 500 }}>All formats downloaded!</span>
+              </div>
+            )}
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, textAlign: "left" }}>
               {resultsData.files.map((file: any) => {
                 const info = formats[file.name] || { label: file.name, desc: "Video", icon: "🎥" };
                 return (
-                  <div key={file.name} style={{ ...card, padding: 20 }}>
+                  <div key={file.name} style={{ ...card, padding: 20, opacity: downloadedAll ? 0.5 : 1 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
                       <span style={{ fontSize: 24 }}>{info.icon}</span>
                       <div>
@@ -389,7 +398,11 @@ export default function Home() {
                         <p style={{ fontSize: 12, color: theme.textMuted }}>{info.desc}</p>
                       </div>
                     </div>
-                    <a href={file.url} download style={{ ...btnSecondary, width: "100%", fontSize: 14, padding: "10px 16px", textDecoration: "none" }}><Download size={14} /> Download</a>
+                    {downloadedAll ? (
+                      <button disabled style={{ ...btnSecondary, width: "100%", fontSize: 14, padding: "10px 16px", opacity: 0.5, cursor: "default" }}><CheckCircle2 size={14} color="#4ade80" /> Included in ZIP</button>
+                    ) : (
+                      <a href={file.url} download style={{ ...btnSecondary, width: "100%", fontSize: 14, padding: "10px 16px", textDecoration: "none" }}><Download size={14} /> Download</a>
+                    )}
                   </div>
                 );
               })}
