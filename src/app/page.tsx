@@ -218,9 +218,8 @@ export default function Home() {
 
       {/* Header */}
       <header style={{ position: "relative", zIndex: 10, maxWidth: 1100, margin: "0 auto", padding: "24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }} onClick={handleReset}>
-          <div style={{ width: 40, height: 40, background: "linear-gradient(135deg, #8b5cf6, #d946ef)", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 900, fontSize: 18 }}>R</div>
-          <span style={{ fontSize: 20, fontWeight: 700, letterSpacing: -0.5 }}>RACIO</span>
+        <div style={{ display: "flex", alignItems: "center", cursor: "pointer" }} onClick={handleReset}>
+          <img src="/logo.png" alt="RACIO" style={{ height: 36 }} />
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <a href="#features" style={{ padding: "8px 16px", color: theme.textMuted, textDecoration: "none", fontSize: 14 }}>Features</a>
@@ -454,8 +453,7 @@ export default function Home() {
       {/* Footer */}
       <footer style={{ position: "relative", zIndex: 10, maxWidth: 1100, margin: "0 auto", padding: "32px 24px", borderTop: `1px solid ${theme.border}`, display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <div style={{ width: 32, height: 32, background: "linear-gradient(135deg, #8b5cf6, #d946ef)", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700, fontSize: 14 }}>R</div>
-          <span style={{ fontSize: 14, color: theme.textMuted }}>RACIO — The Ratio Engine</span>
+          <img src="/logo.png" alt="RACIO" style={{ height: 24 }} />
         </div>
         <div style={{ display: "flex", gap: 24 }}>
           <a href="#" style={{ fontSize: 14, color: theme.textMuted, textDecoration: "none" }}>Privacy</a>
