@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useRef, CSSProperties } from "react";
 import { Upload, Link as LinkIcon, Loader2, Sparkles, Zap, Shield, Clock, Download, RefreshCcw, CheckCircle2, Package, Check, Star, Crown, Sun, Moon, X } from "lucide-react";
-import { checkUsage, incrementUsage, isProUser } from "@/lib/usage";
+import { checkUsage, incrementUsage, isProUser, checkUrlUsage, incrementUrlUsage } from "@/lib/usage";
 
 // Payment Links
 const PAYMENT_LINKS = {
@@ -156,8 +156,9 @@ export default function Home() {
     e.preventDefault();
     if (!url.trim()) return;
 
-    if (!isProUser()) {
-      showLimitModal("Pro Feature", "X/Twitter downloading is a Pro feature.");
+    // Check URL usage limit (free users get 1/day, Pro unlimited)
+    if (!checkUrlUsage()) {
+      showLimitModal("Daily URL Limit Reached", "Free users get 1 X/Twitter download per day. Upgrade for unlimited!");
       return;
     }
     if (!checkLimit()) return;
@@ -189,6 +190,7 @@ export default function Home() {
       setResultsData(await processRes.json());
       setStep("results");
       incrementUsage();
+      incrementUrlUsage(); // Track URL usage for free users
     } catch (e: any) {
       stopProgress();
       setError(e.message);
