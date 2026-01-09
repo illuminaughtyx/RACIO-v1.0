@@ -236,7 +236,7 @@ export default function Home() {
       {/* Header */}
       <header style={{ position: "relative", zIndex: 10, maxWidth: 1100, margin: "0 auto", padding: "24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }} onClick={handleReset}>
-          <img src="/logo.png" alt="RACIO" style={{ height: 48 }} />
+          <img src="/logo.png" alt="RACIO" style={{ height: 48, filter: isDark ? "none" : "invert(1)" }} />
           {(isPro || isLifetime) && (
             <span style={{
               padding: "4px 10px",
@@ -527,7 +527,7 @@ export default function Home() {
       {/* Footer */}
       <footer style={{ position: "relative", zIndex: 10, maxWidth: 1100, margin: "0 auto", padding: "32px 24px", borderTop: `1px solid ${theme.border}`, display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <img src="/logo.png" alt="RACIO" style={{ height: 32 }} />
+          <img src="/logo.png" alt="RACIO" style={{ height: 32, filter: isDark ? "none" : "invert(1)" }} />
         </div>
         <div style={{ display: "flex", gap: 24 }}>
           <a href="#" style={{ fontSize: 14, color: theme.textMuted, textDecoration: "none" }}>Privacy</a>
