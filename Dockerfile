@@ -21,7 +21,7 @@ RUN npm ci
 # Copy source files
 COPY . .
 
-# Build the Next.js app
+# Build the Next.js ap
 RUN npm run build
 
 # Set environment variables

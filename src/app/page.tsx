@@ -396,8 +396,12 @@ export default function Home() {
             <h2 style={{ fontSize: 32, fontWeight: 700, marginBottom: 8 }}>Your Videos Are <span className="text-gradient">Ready</span></h2>
             <p style={{ color: theme.textMuted, marginBottom: 32 }}>3 formats optimized for every platform</p>
 
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 12, justifyContent: "center", marginBottom: 40 }}>
-              <a href={resultsData.zip} download onClick={() => setDownloadedAll(true)} style={{ ...btn, textDecoration: "none" }}><Package size={18} /> Download All</a>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 12, justifyContent: "center", marginBottom: 24 }}>
+              {downloadedAll ? (
+                <button disabled style={{ ...btn, opacity: 0.5, cursor: "default", background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)" }}><CheckCircle2 size={18} /> Downloaded</button>
+              ) : (
+                <a href={resultsData.zip} download onClick={() => setDownloadedAll(true)} style={{ ...btn, textDecoration: "none" }}><Package size={18} /> Download All</a>
+              )}
               <button onClick={handleReset} style={btnSecondary}><RefreshCcw size={18} /> Process Another</button>
             </div>
 
