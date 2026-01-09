@@ -499,7 +499,7 @@ export default function Home() {
             <h3 style={{ fontSize: 20, fontWeight: 700, marginTop: 16, marginBottom: 4 }}>Starter</h3>
             <p style={{ fontSize: 28, fontWeight: 700, marginBottom: 20 }}>$0 <span style={{ fontSize: 14, fontWeight: 400, color: theme.textMuted }}>/forever</span></p>
             <ul style={{ listStyle: "none", marginBottom: 24 }}>
-              {["3 videos/day", "Standard speed", "50MB max"].map(f => (
+              {["3 videos/day", "Watermarked videos", "50MB max"].map(f => (
                 <li key={f} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, fontSize: 14, color: theme.textSecondary }}>
                   <Check size={14} color={theme.textMuted} /> {f}
                 </li>
@@ -515,7 +515,7 @@ export default function Home() {
             <h3 style={{ fontSize: 20, fontWeight: 700, marginTop: 16, marginBottom: 4 }}>Pro</h3>
             <p style={{ fontSize: 28, fontWeight: 700, marginBottom: 20 }}>$7 <span style={{ fontSize: 14, fontWeight: 400, color: theme.textMuted }}>/mo</span></p>
             <ul style={{ listStyle: "none", marginBottom: 24 }}>
-              {["Unlimited videos", "5x faster", "X/Twitter downloader"].map(f => (
+              {["✨ No watermark", "Unlimited videos", "X/Twitter downloader"].map(f => (
                 <li key={f} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, fontSize: 14 }}>
                   <Check size={14} color="#4ade80" /> {f}
                 </li>
@@ -542,7 +542,7 @@ export default function Home() {
             <p style={{ fontSize: 28, fontWeight: 700, marginBottom: 4 }}>$79 <span style={{ fontSize: 14, fontWeight: 400, color: theme.textMuted }}>/once</span></p>
             <p style={{ fontSize: 12, color: "#f59e0b", marginBottom: 16 }}>Early bird • Then $149</p>
             <ul style={{ listStyle: "none", marginBottom: 24 }}>
-              {["Everything in Pro", "Forever access", "Future updates"].map(f => (
+              {["✨ No watermark ever", "Everything in Pro", "Future updates"].map(f => (
                 <li key={f} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, fontSize: 14, color: theme.textSecondary }}>
                   <Check size={14} color={isLifetime ? "#fbbf24" : "#f472b6"} /> {f}
                 </li>
