@@ -255,14 +255,7 @@ export default function Home() {
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <a href="#features" style={{ padding: "8px 16px", color: theme.textMuted, textDecoration: "none", fontSize: 14 }}>Features</a>
           <a href="#pricing" style={{ padding: "8px 16px", color: theme.textMuted, textDecoration: "none", fontSize: 14 }}>Pricing</a>
-          {!isPro && (
-            <button
-              onClick={() => setShowLicenseModal(true)}
-              style={{ ...card, padding: "8px 14px", display: "flex", alignItems: "center", gap: 6, cursor: "pointer", color: theme.textSecondary, fontSize: 13 }}
-            >
-              <Key size={14} /> Activate
-            </button>
-          )}
+
           <button onClick={() => setIsDark(!isDark)} style={{ ...card, width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: theme.textSecondary }}>
             {isDark ? <Sun size={18} /> : <Moon size={18} />}
           </button>
