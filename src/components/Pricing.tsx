@@ -2,9 +2,9 @@
 import React, { useEffect, useState } from "react";
 import { Check, Zap, Star, Crown, Sparkles } from "lucide-react";
 
-const STRIPE_LINKS = {
-    PRO_MONTHLY: "https://buy.stripe.com/PLACEHOLDER_PRO",
-    LIFETIME: "https://buy.stripe.com/PLACEHOLDER_LIFETIME",
+const PAYMENT_LINKS = {
+    PRO_MONTHLY: "https://racioapp.lemonsqueezy.com/checkout/buy/1b322848-8f95-455f-9570-7deb748c4358",
+    LIFETIME: "https://racioapp.lemonsqueezy.com/checkout/buy/8832208c-763f-4448-8f76-edc23be51534",
 };
 
 export default function Pricing() {
@@ -71,7 +71,7 @@ export default function Pricing() {
 
                     <h3 className="text-xl font-bold font-outfit mb-1">Pro</h3>
                     <div className="flex items-baseline gap-1 mb-5">
-                        <span className="text-3xl font-bold">$9</span>
+                        <span className="text-3xl font-bold">$7</span>
                         <span className="text-[var(--text-muted)] text-sm">/mo</span>
                     </div>
 
@@ -87,7 +87,7 @@ export default function Pricing() {
                     {isPro ? (
                         <button className="w-full btn-secondary text-sm py-3 border-green-500/30 text-green-400" disabled>Active</button>
                     ) : (
-                        <a href={STRIPE_LINKS.PRO_MONTHLY} target="_blank" rel="noreferrer" className="w-full btn-primary text-sm py-3 text-center flex items-center justify-center gap-2">
+                        <a href={PAYMENT_LINKS.PRO_MONTHLY} target="_blank" rel="noreferrer" className="w-full btn-primary text-sm py-3 text-center flex items-center justify-center gap-2">
                             <Sparkles size={14} />
                             Get Pro
                         </a>
@@ -95,16 +95,21 @@ export default function Pricing() {
                 </div>
 
                 {/* Lifetime */}
-                <div className={`glass-card p-6 flex flex-col animate-fade-in-up delay-300 ${isPro ? "opacity-60" : ""}`}>
-                    <div className="w-10 h-10 bg-gradient-to-br from-fuchsia-500/20 to-pink-500/10 rounded-xl flex items-center justify-center mb-5">
+                <div className={`glass-card p-6 flex flex-col animate-fade-in-up delay-300 relative ${isPro ? "opacity-60" : ""}`}>
+                    <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full text-[10px] font-bold text-white uppercase">
+                        🔥 First 50 Only
+                    </div>
+
+                    <div className="w-10 h-10 bg-gradient-to-br from-fuchsia-500/20 to-pink-500/10 rounded-xl flex items-center justify-center mb-5 mt-2">
                         <Crown size={20} className="text-fuchsia-400" />
                     </div>
 
                     <h3 className="text-xl font-bold font-outfit mb-1">Lifetime</h3>
-                    <div className="flex items-baseline gap-1 mb-5">
-                        <span className="text-3xl font-bold">$49</span>
+                    <div className="flex items-baseline gap-1 mb-1">
+                        <span className="text-3xl font-bold">$79</span>
                         <span className="text-[var(--text-muted)] text-sm">/once</span>
                     </div>
+                    <p className="text-xs text-amber-400/80 mb-4">Early bird price • Then $149</p>
 
                     <ul className="flex-1 space-y-3 mb-6 text-sm">
                         {["Everything in Pro", "Forever access", "Future updates"].map((f) => (
@@ -118,7 +123,7 @@ export default function Pricing() {
                     {isPro ? (
                         <button className="w-full btn-secondary text-sm py-3" disabled>Active</button>
                     ) : (
-                        <a href={STRIPE_LINKS.LIFETIME} target="_blank" rel="noreferrer" className="w-full btn-secondary text-sm py-3 hover:border-fuchsia-500/40 transition-colors text-center">
+                        <a href={PAYMENT_LINKS.LIFETIME} target="_blank" rel="noreferrer" className="w-full btn-secondary text-sm py-3 hover:border-fuchsia-500/40 transition-colors text-center">
                             Buy Lifetime
                         </a>
                     )}

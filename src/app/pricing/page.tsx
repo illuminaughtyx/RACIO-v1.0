@@ -25,7 +25,7 @@ const plans = [
     },
     {
         name: "Pro",
-        price: "$9",
+        price: "$7",
         period: "/month",
         yearlyPrice: "$49/year",
         description: "For content creators who post everywhere",
@@ -40,7 +40,7 @@ const plans = [
         ],
         limitations: [],
         cta: "Upgrade to Pro",
-        href: "/api/checkout?plan=pro_monthly",
+        href: "https://racioapp.lemonsqueezy.com/checkout/buy/1b322848-8f95-455f-9570-7deb748c4358",
         popular: true,
         icon: Crown,
     },
@@ -89,8 +89,8 @@ export default function PricingPage() {
                 <button
                     onClick={() => setBillingCycle("monthly")}
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${billingCycle === "monthly"
-                            ? "bg-white/10 text-white"
-                            : "text-white/40 hover:text-white/60"
+                        ? "bg-white/10 text-white"
+                        : "text-white/40 hover:text-white/60"
                         }`}
                 >
                     Monthly
@@ -98,13 +98,13 @@ export default function PricingPage() {
                 <button
                     onClick={() => setBillingCycle("yearly")}
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${billingCycle === "yearly"
-                            ? "bg-white/10 text-white"
-                            : "text-white/40 hover:text-white/60"
+                        ? "bg-white/10 text-white"
+                        : "text-white/40 hover:text-white/60"
                         }`}
                 >
                     Yearly
                     <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full">
-                        Save 55%
+                        Save 42%
                     </span>
                 </button>
             </div>
@@ -120,15 +120,15 @@ export default function PricingPage() {
                         ? "/year"
                         : plan.period;
                     const checkoutUrl = billingCycle === "yearly" && plan.name === "Pro"
-                        ? "/api/checkout?plan=pro_yearly"
+                        ? "https://racioapp.lemonsqueezy.com/checkout/buy/ba4dc072-1dfb-4ce4-b238-36a3f3914d09"
                         : plan.href;
 
                     return (
                         <div
                             key={plan.name}
                             className={`glass-panel p-8 relative animate-fade-in-up ${plan.popular
-                                    ? "border-[#a855f7]/30 shadow-lg shadow-[#a855f7]/10"
-                                    : ""
+                                ? "border-[#a855f7]/30 shadow-lg shadow-[#a855f7]/10"
+                                : ""
                                 }`}
                             style={{ animationDelay: `${index * 100}ms` }}
                         >
@@ -157,8 +157,8 @@ export default function PricingPage() {
                             <a
                                 href={checkoutUrl}
                                 className={`w-full py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all mb-8 ${plan.popular
-                                        ? "btn-primary"
-                                        : "bg-white/5 hover:bg-white/10 border border-white/10"
+                                    ? "btn-primary"
+                                    : "bg-white/5 hover:bg-white/10 border border-white/10"
                                     }`}
                             >
                                 {plan.cta}

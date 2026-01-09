@@ -1,19 +1,33 @@
 "use client";
 import { useEffect, useState, Suspense } from "react";
-import { CheckCircle2, Crown, ArrowRight, Sparkles, Star, Loader2 } from "lucide-react";
+import { CheckCircle2, Crown, ArrowRight, Sparkles, Star, Loader2, Copy, Check } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
 function SuccessContent() {
     const searchParams = useSearchParams();
     const plan = searchParams.get("plan") || "pro"; // "pro" or "lifetime"
+    const license = searchParams.get("license") || null;
     const isLifetime = plan === "lifetime";
 
     const [activated, setActivated] = useState(false);
+    const [copied, setCopied] = useState(false);
+
+    const copyLicenseKey = async () => {
+        if (!license) return;
+        await navigator.clipboard.writeText(license);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
 
     useEffect(() => {
         // Activate Pro Mode in Local Storage (both Pro and Lifetime get this)
         localStorage.setItem("racio_pro", "true");
+
+        // Store the license key
+        if (license) {
+            localStorage.setItem("racio_license_key", license);
+        }
 
         // For Lifetime, also set a lifetime flag
         if (isLifetime) {
@@ -22,10 +36,11 @@ function SuccessContent() {
 
         // Clear any usage limits
         localStorage.removeItem("racio_usage");
+        localStorage.removeItem("racio_url_usage");
 
         // Show activated after a brief delay
         setTimeout(() => setActivated(true), 1500);
-    }, [isLifetime]);
+    }, [isLifetime, license]);
 
     const card = {
         background: "rgba(255,255,255,0.05)",
@@ -106,7 +121,7 @@ function SuccessContent() {
                 border: "1px solid rgba(255,255,255,0.08)",
                 borderRadius: 16,
                 padding: 24,
-                marginBottom: 32,
+                marginBottom: license ? 16 : 32,
                 textAlign: "left"
             }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
@@ -128,6 +143,60 @@ function SuccessContent() {
                     ))}
                 </ul>
             </div>
+
+            {/* License Key Card */}
+            {license && (
+                <div style={{
+                    background: "rgba(139, 92, 246, 0.1)",
+                    border: "1px solid rgba(139, 92, 246, 0.2)",
+                    borderRadius: 16,
+                    padding: 20,
+                    marginBottom: 32,
+                    textAlign: "center"
+                }}>
+                    <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 12, marginBottom: 8, textTransform: "uppercase", letterSpacing: 1 }}>
+                        Your License Key
+                    </p>
+                    <div style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 12,
+                        background: "rgba(0,0,0,0.3)",
+                        padding: "12px 16px",
+                        borderRadius: 10,
+                        fontFamily: "monospace"
+                    }}>
+                        <code style={{ fontSize: 16, fontWeight: 600, letterSpacing: 2 }}>
+                            {license}
+                        </code>
+                        <button
+                            onClick={copyLicenseKey}
+                            style={{
+                                background: "rgba(255,255,255,0.1)",
+                                border: "none",
+                                borderRadius: 6,
+                                padding: 8,
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                transition: "all 0.2s"
+                            }}
+                            title="Copy license key"
+                        >
+                            {copied ? (
+                                <Check size={16} color="#4ade80" />
+                            ) : (
+                                <Copy size={16} color="rgba(255,255,255,0.6)" />
+                            )}
+                        </button>
+                    </div>
+                    <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 11, marginTop: 10 }}>
+                        Save this key! You can use it to restore Pro access on any device.
+                    </p>
+                </div>
+            )}
 
             {/* CTA Button */}
             <Link href="/" style={btn}>

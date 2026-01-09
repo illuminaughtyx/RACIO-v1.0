@@ -1,12 +1,14 @@
 "use client";
 import React, { useState, useRef, CSSProperties } from "react";
-import { Upload, Link as LinkIcon, Loader2, Sparkles, Zap, Shield, Clock, Download, RefreshCcw, CheckCircle2, Package, Check, Star, Crown, Sun, Moon, X } from "lucide-react";
+import { Upload, Link as LinkIcon, Loader2, Sparkles, Zap, Shield, Clock, Download, RefreshCcw, CheckCircle2, Package, Check, Star, Crown, Sun, Moon, X, Key } from "lucide-react";
 import { checkUsage, incrementUsage, isProUser, checkUrlUsage, incrementUrlUsage } from "@/lib/usage";
+import LicenseActivation from "@/components/LicenseActivation";
 
-// Payment Links
+// Payment Links - Using Lemon Squeezy (works in India!)
 const PAYMENT_LINKS = {
-  PRO: "https://racioapp.lemonsqueezy.com/checkout/buy/720fcdaa-b668-4d65-94a6-1e4f254e9892",
-  LIFETIME: "https://racioapp.lemonsqueezy.com/checkout/buy/0509fbfb-5fcc-4ad7-9fd4-4db48c440e90",
+  PRO_MONTHLY: "https://racioapp.lemonsqueezy.com/checkout/buy/1b322848-8f95-455f-9570-7deb748c4358",
+  PRO_YEARLY: "https://racioapp.lemonsqueezy.com/checkout/buy/ba4dc072-1dfb-4ce4-b238-36a3f3914d09",
+  LIFETIME: "https://racioapp.lemonsqueezy.com/checkout/buy/8832208c-763f-4448-8f76-edc23be51534",
 };
 
 // Style helpers
@@ -46,6 +48,7 @@ export default function Home() {
   const [isPro, setIsPro] = useState(false);
   const [isLifetime, setIsLifetime] = useState(false);
   const [downloadedAll, setDownloadedAll] = useState(false);
+  const [showLicenseModal, setShowLicenseModal] = useState(false);
   const progressInterval = useRef<NodeJS.Timeout | null>(null);
 
   // Check Pro/Lifetime status on mount
@@ -252,13 +255,31 @@ export default function Home() {
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <a href="#features" style={{ padding: "8px 16px", color: theme.textMuted, textDecoration: "none", fontSize: 14 }}>Features</a>
           <a href="#pricing" style={{ padding: "8px 16px", color: theme.textMuted, textDecoration: "none", fontSize: 14 }}>Pricing</a>
+          {!isPro && (
+            <button
+              onClick={() => setShowLicenseModal(true)}
+              style={{ ...card, padding: "8px 14px", display: "flex", alignItems: "center", gap: 6, cursor: "pointer", color: theme.textSecondary, fontSize: 13 }}
+            >
+              <Key size={14} /> Activate
+            </button>
+          )}
           <button onClick={() => setIsDark(!isDark)} style={{ ...card, width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: theme.textSecondary }}>
             {isDark ? <Sun size={18} /> : <Moon size={18} />}
           </button>
         </div>
       </header>
 
-      {/* Modal */}
+      {/* License Activation Modal */}
+      <LicenseActivation
+        isOpen={showLicenseModal}
+        onClose={() => setShowLicenseModal(false)}
+        onActivated={() => {
+          setIsPro(true);
+          setShowLicenseModal(false);
+        }}
+      />
+
+      {/* Limit Modal */}
       {showModal && (
         <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", padding: 16, background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)" }}>
           <div style={{ ...card, padding: 40, maxWidth: 400, width: "100%", textAlign: "center" }} className="animate-fade-in-up">
@@ -268,6 +289,7 @@ export default function Home() {
             <h3 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8 }}>{modalContent.title}</h3>
             <p style={{ color: theme.textMuted, marginBottom: 24 }}>{modalContent.desc}</p>
             <button onClick={() => { setShowModal(false); document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" }); }} style={{ ...btn, width: "100%", marginBottom: 12 }}>View Plans</button>
+            <button onClick={() => { setShowModal(false); setShowLicenseModal(true); }} style={{ background: "none", border: "none", color: "#a855f7", cursor: "pointer", marginBottom: 8 }}>Have a license key?</button>
             <button onClick={() => setShowModal(false)} style={{ background: "none", border: "none", color: theme.textMuted, cursor: "pointer" }}>Close</button>
           </div>
         </div>
@@ -461,7 +483,7 @@ export default function Home() {
             <div style={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", background: isPro && !isLifetime ? "linear-gradient(90deg, #4ade80, #22c55e)" : "linear-gradient(90deg, #8b5cf6, #d946ef)", padding: "4px 12px", borderRadius: 100, fontSize: 10, fontWeight: 700, color: "#fff", textTransform: "uppercase" }}>{isPro && !isLifetime ? "Active" : "Popular"}</div>
             <Star size={24} color={isPro && !isLifetime ? "#4ade80" : "#a855f7"} />
             <h3 style={{ fontSize: 20, fontWeight: 700, marginTop: 16, marginBottom: 4 }}>Pro</h3>
-            <p style={{ fontSize: 28, fontWeight: 700, marginBottom: 20 }}>$9 <span style={{ fontSize: 14, fontWeight: 400, color: theme.textMuted }}>/mo</span></p>
+            <p style={{ fontSize: 28, fontWeight: 700, marginBottom: 20 }}>$7 <span style={{ fontSize: 14, fontWeight: 400, color: theme.textMuted }}>/mo</span></p>
             <ul style={{ listStyle: "none", marginBottom: 24 }}>
               {["Unlimited videos", "5x faster", "X/Twitter downloader"].map(f => (
                 <li key={f} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, fontSize: 14 }}>
@@ -474,18 +496,21 @@ export default function Home() {
             ) : isLifetime ? (
               <button disabled style={{ ...btnSecondary, width: "100%", opacity: 0.5, cursor: "default" }}>Included in Lifetime</button>
             ) : (
-              <a href={PAYMENT_LINKS.PRO} style={{ ...btn, width: "100%", textDecoration: "none" }}>Get Pro</a>
+              <a href={PAYMENT_LINKS.PRO_MONTHLY} style={{ ...btn, width: "100%", textDecoration: "none" }}>Get Pro</a>
             )}
           </div>
 
           {/* Lifetime */}
           <div style={{ ...card, padding: 28, borderColor: isLifetime ? "#fbbf24" : theme.border, borderWidth: isLifetime ? 2 : 1, position: "relative" }}>
-            {isLifetime && (
+            {isLifetime ? (
               <div style={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", background: "linear-gradient(90deg, #fbbf24, #f59e0b)", padding: "4px 12px", borderRadius: 100, fontSize: 10, fontWeight: 700, color: "#000", textTransform: "uppercase" }}>Active</div>
+            ) : (
+              <div style={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", background: "linear-gradient(90deg, #f59e0b, #ea580c)", padding: "4px 12px", borderRadius: 100, fontSize: 10, fontWeight: 700, color: "#fff", textTransform: "uppercase" }}>🔥 First 50 Only</div>
             )}
-            <Crown size={24} color={isLifetime ? "#fbbf24" : "#f472b6"} />
+            <Crown size={24} color={isLifetime ? "#fbbf24" : "#f472b6"} style={{ marginTop: 8 }} />
             <h3 style={{ fontSize: 20, fontWeight: 700, marginTop: 16, marginBottom: 4 }}>Lifetime</h3>
-            <p style={{ fontSize: 28, fontWeight: 700, marginBottom: 20 }}>$49 <span style={{ fontSize: 14, fontWeight: 400, color: theme.textMuted }}>/once</span></p>
+            <p style={{ fontSize: 28, fontWeight: 700, marginBottom: 4 }}>$79 <span style={{ fontSize: 14, fontWeight: 400, color: theme.textMuted }}>/once</span></p>
+            <p style={{ fontSize: 12, color: "#f59e0b", marginBottom: 16 }}>Early bird • Then $149</p>
             <ul style={{ listStyle: "none", marginBottom: 24 }}>
               {["Everything in Pro", "Forever access", "Future updates"].map(f => (
                 <li key={f} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, fontSize: 14, color: theme.textSecondary }}>
