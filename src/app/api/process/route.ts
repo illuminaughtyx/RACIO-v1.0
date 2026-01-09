@@ -57,30 +57,52 @@ function processVideo({
     width,
     height,
     pad = false,
+    addWatermark = false,
 }: {
     input: string;
     output: string;
     width: number;
     height: number;
     pad?: boolean;
+    addWatermark?: boolean;
 }): Promise<string> {
     return new Promise((resolve, reject) => {
         const command = ffmpeg(input);
 
+        // Build filter chain
+        let filterChain: string[];
+
         if (pad) {
             // Blurred background padding (for vertical→landscape)
-            command.complexFilter([
+            filterChain = [
                 `split[main][blur]`,
                 `[blur]scale=${width}:${height}:force_original_aspect_ratio=increase,crop=${width}:${height},boxblur=15:5[bg]`,
                 `[main]scale=${width}:${height}:force_original_aspect_ratio=decrease[ov]`,
-                `[bg][ov]overlay=(W-w)/2:(H-h)/2`,
-            ]);
+                `[bg][ov]overlay=(W-w)/2:(H-h)/2[scaled]`,
+            ];
+
+            if (addWatermark) {
+                // Add watermark text
+                filterChain.push(
+                    `[scaled]drawtext=text='RACIO.app':fontsize=20:fontcolor=white@0.5:x=w-tw-10:y=h-th-10:shadowcolor=black@0.3:shadowx=1:shadowy=1`
+                );
+            } else {
+                filterChain[filterChain.length - 1] = filterChain[filterChain.length - 1].replace('[scaled]', '');
+            }
         } else {
             // Center crop
-            command.complexFilter([
-                `scale=${width}:${height}:force_original_aspect_ratio=increase,crop=${width}:${height}`,
-            ]);
+            if (addWatermark) {
+                filterChain = [
+                    `scale=${width}:${height}:force_original_aspect_ratio=increase,crop=${width}:${height},drawtext=text='RACIO.app':fontsize=20:fontcolor=white@0.5:x=w-tw-10:y=h-th-10:shadowcolor=black@0.3:shadowx=1:shadowy=1`,
+                ];
+            } else {
+                filterChain = [
+                    `scale=${width}:${height}:force_original_aspect_ratio=increase,crop=${width}:${height}`,
+                ];
+            }
         }
+
+        command.complexFilter(filterChain);
 
         command
             .outputOptions([
@@ -113,11 +135,13 @@ export async function POST(req: NextRequest) {
         let inputPath: string;
         let sessionId: string;
         let tempDir: string;
+        let isPro = false; // Default: add watermark for free users
 
         if (contentType.includes("multipart/form-data")) {
             // Handle file upload
             const formData = await req.formData();
             const file = formData.get("file") as File;
+            isPro = formData.get("isPro") === "true";
 
             if (!file) {
                 return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
@@ -133,7 +157,8 @@ export async function POST(req: NextRequest) {
         } else {
             // Handle JSON request (from URL fetch)
             const body = await req.json();
-            const { tempPath, sessionId: existingSessionId } = body;
+            const { tempPath, sessionId: existingSessionId, isPro: isProFromBody } = body;
+            isPro = isProFromBody === true;
 
             if (!tempPath || !existingSessionId) {
                 return NextResponse.json(
@@ -197,7 +222,8 @@ export async function POST(req: NextRequest) {
             pad: true,
         });
 
-        // Process in parallel
+        // Process in parallel - Add watermark for free users only
+        const addWatermark = !isPro;
         const promises = targets.map((t) => {
             const outputPath = path.join(tempDir, `${t.name}.mp4`);
             return processVideo({
@@ -206,6 +232,7 @@ export async function POST(req: NextRequest) {
                 width: t.width,
                 height: t.height,
                 pad: t.pad,
+                addWatermark,
             }).then(() => ({ name: t.name, path: outputPath }));
         });
 

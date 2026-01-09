@@ -141,6 +141,7 @@ export default function Home() {
 
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("isPro", String(isPro || isLifetime));
 
     try {
       const res = await fetch("/api/process", { method: "POST", body: formData });
@@ -186,7 +187,7 @@ export default function Home() {
       const processRes = await fetch("/api/process", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tempPath: fetchData.tempPath, sessionId: fetchData.sessionId }),
+        body: JSON.stringify({ tempPath: fetchData.tempPath, sessionId: fetchData.sessionId, isPro: isPro || isLifetime }),
       });
       stopProgress();
       if (!processRes.ok) throw new Error((await processRes.json()).error || "Processing failed");
@@ -387,7 +388,39 @@ export default function Home() {
               <span style={{ fontSize: 14, color: "#4ade80", fontWeight: 500 }}>Ready!</span>
             </div>
             <h2 style={{ fontSize: 32, fontWeight: 700, marginBottom: 8 }}>Your Videos Are <span className="text-gradient">Ready</span></h2>
-            <p style={{ color: theme.textMuted, marginBottom: 32 }}>3 formats optimized for every platform</p>
+            <p style={{ color: theme.textMuted, marginBottom: 16 }}>3 formats optimized for every platform</p>
+
+            {/* Watermark Notice for Free Users */}
+            {!isPro && !isLifetime && (
+              <div style={{
+                background: "linear-gradient(135deg, rgba(251,191,36,0.1), rgba(245,158,11,0.1))",
+                border: "1px solid rgba(251,191,36,0.3)",
+                borderRadius: 12,
+                padding: "12px 20px",
+                marginBottom: 24,
+                display: "flex",
+                flexWrap: "wrap",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 12
+              }}>
+                <span style={{ fontSize: 14, color: "#fbbf24" }}>⚠️ Videos include RACIO watermark</span>
+                <a
+                  href={PAYMENT_LINKS.LIFETIME}
+                  style={{
+                    background: "linear-gradient(135deg, #fbbf24, #f59e0b)",
+                    color: "#000",
+                    padding: "6px 14px",
+                    borderRadius: 8,
+                    fontSize: 13,
+                    fontWeight: 600,
+                    textDecoration: "none"
+                  }}
+                >
+                  Remove Watermark - $79 lifetime
+                </a>
+              </div>
+            )}
 
             <div style={{ display: "flex", flexWrap: "wrap", gap: 12, justifyContent: "center", marginBottom: 24 }}>
               {downloadedAll ? (
