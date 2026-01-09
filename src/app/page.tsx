@@ -49,6 +49,8 @@ export default function Home() {
   const [isLifetime, setIsLifetime] = useState(false);
   const [downloadedAll, setDownloadedAll] = useState(false);
   const [showLicenseModal, setShowLicenseModal] = useState(false);
+  const [showExitPopup, setShowExitPopup] = useState(false);
+  const exitPopupShown = useRef(false);
   const progressInterval = useRef<NodeJS.Timeout | null>(null);
 
   // Check Pro/Lifetime status on mount
@@ -58,6 +60,25 @@ export default function Home() {
       setIsLifetime(localStorage.getItem("racio_lifetime") === "true");
     }
   }, []);
+
+  // Exit intent detection - show popup when user moves towards browser close
+  React.useEffect(() => {
+    const handleMouseLeave = (e: MouseEvent) => {
+      // Only trigger when mouse moves to top of page (exit intent)
+      if (e.clientY <= 5 && !exitPopupShown.current && !isPro && !isLifetime) {
+        exitPopupShown.current = true;
+        // Check if user has seen this popup recently (1 hour cooldown)
+        const lastShown = localStorage.getItem("racio_exit_popup_shown");
+        if (!lastShown || Date.now() - parseInt(lastShown) > 3600000) {
+          setShowExitPopup(true);
+          localStorage.setItem("racio_exit_popup_shown", Date.now().toString());
+        }
+      }
+    };
+
+    document.addEventListener("mouseleave", handleMouseLeave);
+    return () => document.removeEventListener("mouseleave", handleMouseLeave);
+  }, [isPro, isLifetime]);
 
   const theme = isDark ? styles.dark : styles.light;
 
@@ -295,6 +316,61 @@ export default function Home() {
           <div style={{ ...card, padding: "12px 16px", display: "flex", alignItems: "center", gap: 12, borderColor: "rgba(239,68,68,0.3)" }}>
             <span style={{ color: "#f87171", flex: 1, fontSize: 14 }}>{error}</span>
             <button onClick={() => setError(null)} style={{ background: "none", border: "none", color: "#f87171", cursor: "pointer" }}><X size={18} /></button>
+          </div>
+        </div>
+      )}
+
+      {/* Exit Intent Popup */}
+      {showExitPopup && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: 16, background: "rgba(0,0,0,0.85)", backdropFilter: "blur(12px)" }}>
+          <div style={{ ...card, padding: 40, maxWidth: 440, width: "100%", textAlign: "center", position: "relative", border: "2px solid rgba(251,191,36,0.3)" }} className="animate-fade-in-up">
+            {/* Close button */}
+            <button
+              onClick={() => setShowExitPopup(false)}
+              style={{ position: "absolute", top: 16, right: 16, background: "none", border: "none", color: theme.textMuted, cursor: "pointer" }}
+            >
+              <X size={20} />
+            </button>
+
+            {/* Icon */}
+            <div style={{ width: 64, height: 64, background: "linear-gradient(135deg, #fbbf24, #f59e0b)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", boxShadow: "0 20px 40px -10px rgba(251,191,36,0.4)" }}>
+              <Crown size={32} color="#000" />
+            </div>
+
+            {/* Content */}
+            <h3 style={{ fontSize: 26, fontWeight: 700, marginBottom: 8 }}>Wait! Don&apos;t leave yet 🎁</h3>
+            <p style={{ color: theme.textMuted, marginBottom: 8, fontSize: 15 }}>Get lifetime access to watermark-free videos</p>
+
+            {/* Price */}
+            <div style={{ background: "rgba(251,191,36,0.1)", border: "1px solid rgba(251,191,36,0.2)", borderRadius: 12, padding: "16px 20px", marginBottom: 24 }}>
+              <p style={{ fontSize: 14, color: "#fbbf24", marginBottom: 4 }}>🔥 Special Exit Offer</p>
+              <p style={{ fontSize: 32, fontWeight: 700 }}>$79 <span style={{ fontSize: 16, color: theme.textMuted, textDecoration: "line-through" }}>$149</span></p>
+              <p style={{ fontSize: 12, color: theme.textMuted }}>One-time payment • Forever access</p>
+            </div>
+
+            {/* Features */}
+            <ul style={{ listStyle: "none", textAlign: "left", marginBottom: 24, padding: "0 16px" }}>
+              {["✨ No watermark on any video", "Unlimited conversions", "X/Twitter downloader", "All future updates"].map(f => (
+                <li key={f} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, fontSize: 14, color: theme.textSecondary }}>
+                  <Check size={14} color="#4ade80" /> {f}
+                </li>
+              ))}
+            </ul>
+
+            {/* CTA */}
+            <a
+              href={PAYMENT_LINKS.LIFETIME}
+              style={{ ...btn, width: "100%", textDecoration: "none", fontSize: 16, padding: "16px 28px", background: "linear-gradient(135deg, #fbbf24, #f59e0b)", color: "#000" }}
+            >
+              Get Lifetime Access Now
+            </a>
+
+            <button
+              onClick={() => setShowExitPopup(false)}
+              style={{ background: "none", border: "none", color: theme.textMuted, cursor: "pointer", marginTop: 16, fontSize: 13 }}
+            >
+              No thanks, I&apos;ll keep the watermark
+            </button>
           </div>
         </div>
       )}
