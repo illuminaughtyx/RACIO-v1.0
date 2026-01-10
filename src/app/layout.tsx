@@ -16,6 +16,11 @@ export const metadata: Metadata = {
   title: "RACIO — The Ratio Engine",
   description: "Convert any video to Reels, Shorts & Feed formats instantly. No watermarks, no login required.",
   keywords: ["video converter", "aspect ratio", "reels", "shorts", "youtube", "instagram", "tiktok"],
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+    apple: "/favicon.svg",
+  },
   openGraph: {
     title: "RACIO — The Ratio Engine",
     description: "Paste once. Post everywhere. Convert videos to all social formats instantly.",
