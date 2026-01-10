@@ -136,12 +136,31 @@ export async function POST(req: NextRequest) {
         let sessionId: string;
         let tempDir: string;
         let isPro = false; // Default: add watermark for free users
+        let ratios: string[] = ["9:16", "1:1", "16:9"]; // Default ratios
+
+        // Ratio configuration: ratio -> {width, height, name, padForVertical}
+        const RATIO_CONFIG: Record<string, { width: number; height: number; name: string; padForVertical: boolean }> = {
+            "9:16": { width: 720, height: 1280, name: "reel_9-16", padForVertical: true },
+            "1:1": { width: 720, height: 720, name: "feed_1-1", padForVertical: false },
+            "16:9": { width: 1280, height: 720, name: "landscape_16-9", padForVertical: true },
+            "4:5": { width: 720, height: 900, name: "portrait_4-5", padForVertical: false },
+            "2:3": { width: 720, height: 1080, name: "portrait_2-3", padForVertical: false },
+            "21:9": { width: 1260, height: 540, name: "ultrawide_21-9", padForVertical: true },
+        };
 
         if (contentType.includes("multipart/form-data")) {
             // Handle file upload
             const formData = await req.formData();
             const file = formData.get("file") as File;
             isPro = formData.get("isPro") === "true";
+            const ratiosStr = formData.get("ratios") as string;
+            if (ratiosStr) {
+                try {
+                    ratios = JSON.parse(ratiosStr);
+                } catch (e) {
+                    // Keep default ratios
+                }
+            }
 
             if (!file) {
                 return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
@@ -157,8 +176,11 @@ export async function POST(req: NextRequest) {
         } else {
             // Handle JSON request (from URL fetch)
             const body = await req.json();
-            const { tempPath, sessionId: existingSessionId, isPro: isProFromBody } = body;
+            const { tempPath, sessionId: existingSessionId, isPro: isProFromBody, ratios: ratiosFromBody } = body;
             isPro = isProFromBody === true;
+            if (Array.isArray(ratiosFromBody) && ratiosFromBody.length > 0) {
+                ratios = ratiosFromBody;
+            }
 
             if (!tempPath || !existingSessionId) {
                 return NextResponse.json(
@@ -195,32 +217,28 @@ export async function POST(req: NextRequest) {
         const height = metadata.height || 1080;
         const isVertical = height > width;
 
-        // Smart Strategy
-        const targets = [];
+        // Build targets from selected ratios
+        const targets = ratios
+            .filter(r => RATIO_CONFIG[r]) // Only process valid ratios
+            .map(r => {
+                const config = RATIO_CONFIG[r];
+                return {
+                    name: config.name,
+                    width: config.width,
+                    height: config.height,
+                    pad: config.padForVertical && !isVertical, // Only pad if converting to different aspect
+                };
+            });
 
-        // 1. 9:16 (Reels/Shorts) - 720x1280 for speed
-        targets.push({
-            name: "reel_9-16",
-            width: 720,
-            height: 1280,
-            pad: isVertical,
-        });
-
-        // 2. 1:1 (Feed) - 720x720 for speed
-        targets.push({
-            name: "feed_1-1",
-            width: 720,
-            height: 720,
-            pad: false,
-        });
-
-        // 3. 16:9 (YouTube) - 1280x720 for speed
-        targets.push({
-            name: "landscape_16-9",
-            width: 1280,
-            height: 720,
-            pad: true,
-        });
+        // Ensure at least one target
+        if (targets.length === 0) {
+            targets.push({
+                name: "reel_9-16",
+                width: 720,
+                height: 1280,
+                pad: !isVertical,
+            });
+        }
 
         // Process in parallel - Add watermark for free users only
         const addWatermark = !isPro;

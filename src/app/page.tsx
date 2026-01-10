@@ -50,8 +50,13 @@ export default function Home() {
   const [downloadedAll, setDownloadedAll] = useState(false);
   const [showLicenseModal, setShowLicenseModal] = useState(false);
   const [showExitPopup, setShowExitPopup] = useState(false);
+  const [selectedRatios, setSelectedRatios] = useState<string[]>(["9:16", "1:1", "16:9"]);
   const exitPopupShown = useRef(false);
   const progressInterval = useRef<NodeJS.Timeout | null>(null);
+
+  // Available aspect ratios
+  const BASIC_RATIOS = ["9:16", "1:1", "16:9"];
+  const PRO_RATIOS = ["4:5", "2:3", "21:9"];
 
   // Check Pro/Lifetime status on mount
   React.useEffect(() => {
@@ -163,6 +168,7 @@ export default function Home() {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("isPro", String(isPro || isLifetime));
+    formData.append("ratios", JSON.stringify(selectedRatios));
 
     try {
       const res = await fetch("/api/process", { method: "POST", body: formData });
@@ -208,7 +214,7 @@ export default function Home() {
       const processRes = await fetch("/api/process", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tempPath: fetchData.tempPath, sessionId: fetchData.sessionId, isPro: isPro || isLifetime }),
+        body: JSON.stringify({ tempPath: fetchData.tempPath, sessionId: fetchData.sessionId, isPro: isPro || isLifetime, ratios: selectedRatios }),
       });
       stopProgress();
       if (!processRes.ok) throw new Error((await processRes.json()).error || "Processing failed");
@@ -430,6 +436,81 @@ export default function Home() {
                   {isUrlLoading ? <><Loader2 size={16} className="animate-spin" /> Fetching...</> : <><Sparkles size={16} /> Go</>}
                 </button>
               </form>
+
+              {/* Aspect Ratio Selector */}
+              <div style={{ marginTop: 24 }}>
+                <p style={{ fontSize: 12, color: theme.textMuted, marginBottom: 12, textTransform: "uppercase", letterSpacing: 1 }}>Output Formats</p>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center" }}>
+                  {/* Basic Ratios - Always available */}
+                  {BASIC_RATIOS.map(ratio => (
+                    <button
+                      key={ratio}
+                      onClick={() => {
+                        if (selectedRatios.includes(ratio)) {
+                          if (selectedRatios.length > 1) setSelectedRatios(selectedRatios.filter(r => r !== ratio));
+                        } else {
+                          setSelectedRatios([...selectedRatios, ratio]);
+                        }
+                      }}
+                      style={{
+                        ...card,
+                        padding: "8px 16px",
+                        fontSize: 13,
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        background: selectedRatios.includes(ratio) ? "rgba(139,92,246,0.2)" : theme.cardBg,
+                        borderColor: selectedRatios.includes(ratio) ? "#8b5cf6" : theme.border,
+                        color: selectedRatios.includes(ratio) ? "#a855f7" : theme.textSecondary,
+                      }}
+                    >
+                      {ratio}
+                    </button>
+                  ))}
+
+                  {/* Pro Ratios - Locked for free users */}
+                  {PRO_RATIOS.map(ratio => (
+                    <button
+                      key={ratio}
+                      onClick={() => {
+                        if (isPro || isLifetime) {
+                          if (selectedRatios.includes(ratio)) {
+                            setSelectedRatios(selectedRatios.filter(r => r !== ratio));
+                          } else {
+                            setSelectedRatios([...selectedRatios, ratio]);
+                          }
+                        } else {
+                          setShowModal(true);
+                          setModalContent({
+                            title: "Pro Feature",
+                            desc: `Custom aspect ratios like ${ratio} are available with Pro. Upgrade to unlock!`
+                          });
+                        }
+                      }}
+                      style={{
+                        ...card,
+                        padding: "8px 16px",
+                        fontSize: 13,
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        background: selectedRatios.includes(ratio) ? "rgba(251,191,36,0.2)" : theme.cardBg,
+                        borderColor: selectedRatios.includes(ratio) ? "#fbbf24" : theme.border,
+                        color: selectedRatios.includes(ratio) ? "#fbbf24" : theme.textMuted,
+                        opacity: (isPro || isLifetime) ? 1 : 0.6,
+                        position: "relative",
+                      }}
+                    >
+                      {ratio}
+                      {!(isPro || isLifetime) && <Crown size={10} style={{ marginLeft: 4 }} color="#fbbf24" />}
+                    </button>
+                  ))}
+                </div>
+                {!(isPro || isLifetime) && (
+                  <p style={{ fontSize: 11, color: "#fbbf24", marginTop: 8 }}>
+                    <Crown size={10} style={{ marginRight: 4, verticalAlign: "middle" }} />
+                    Pro users get 4:5, 2:3, 21:9 + more
+                  </p>
+                )}
+              </div>
 
               <p style={{ marginTop: 24, fontSize: 12, color: theme.textMuted }}>Trusted by 500+ creators</p>
             </div>
