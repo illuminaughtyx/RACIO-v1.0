@@ -48,6 +48,7 @@ export default function Home() {
   const [isPro, setIsPro] = useState(false);
   const [isLifetime, setIsLifetime] = useState(false);
   const [downloadedAll, setDownloadedAll] = useState(false);
+  const [downloadedFiles, setDownloadedFiles] = useState<Set<string>>(new Set());
   const [showLicenseModal, setShowLicenseModal] = useState(false);
   const [showExitPopup, setShowExitPopup] = useState(false);
   const [selectedRatios, setSelectedRatios] = useState<string[]>(["9:16", "1:1", "16:9"]);
@@ -253,6 +254,7 @@ export default function Home() {
     setStage("");
     setError(null);
     setDownloadedAll(false);
+    setDownloadedFiles(new Set());
   };
 
   const formatSize = (bytes: number) => bytes < 1024 * 1024 ? `${(bytes / 1024).toFixed(1)} KB` : `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
@@ -261,6 +263,9 @@ export default function Home() {
     "reel_9-16": { label: "9:16", desc: "Reels & Shorts", icon: "📱" },
     "feed_1-1": { label: "1:1", desc: "Instagram Feed", icon: "📷" },
     "landscape_16-9": { label: "16:9", desc: "YouTube", icon: "🎬" },
+    "portrait_4-5": { label: "4:5", desc: "Instagram Portrait", icon: "📸" },
+    "portrait_2-3": { label: "2:3", desc: "Pinterest", icon: "📌" },
+    "ultrawide_21-9": { label: "21:9", desc: "Ultrawide/Cinema", icon: "🎥" },
   };
 
   return (
@@ -610,8 +615,9 @@ export default function Home() {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, textAlign: "left" }}>
               {resultsData.files.map((file: any) => {
                 const info = formats[file.name] || { label: file.name, desc: "Video", icon: "🎥" };
+                const isFileDownloaded = downloadedFiles.has(file.name);
                 return (
-                  <div key={file.name} style={{ ...card, padding: 20, opacity: downloadedAll ? 0.5 : 1 }}>
+                  <div key={file.name} style={{ ...card, padding: 20, opacity: downloadedAll || isFileDownloaded ? 0.7 : 1 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
                       <span style={{ fontSize: 24 }}>{info.icon}</span>
                       <div>
@@ -621,8 +627,17 @@ export default function Home() {
                     </div>
                     {downloadedAll ? (
                       <button disabled style={{ ...btnSecondary, width: "100%", fontSize: 14, padding: "10px 16px", opacity: 0.5, cursor: "default" }}><CheckCircle2 size={14} color="#4ade80" /> Included in ZIP</button>
+                    ) : isFileDownloaded ? (
+                      <button disabled style={{ ...btnSecondary, width: "100%", fontSize: 14, padding: "10px 16px", opacity: 0.7, cursor: "default", borderColor: "#4ade80" }}><CheckCircle2 size={14} color="#4ade80" /> Downloaded</button>
                     ) : (
-                      <a href={file.url} download style={{ ...btnSecondary, width: "100%", fontSize: 14, padding: "10px 16px", textDecoration: "none" }}><Download size={14} /> Download</a>
+                      <a
+                        href={file.url}
+                        download
+                        onClick={() => setDownloadedFiles(new Set([...downloadedFiles, file.name]))}
+                        style={{ ...btnSecondary, width: "100%", fontSize: 14, padding: "10px 16px", textDecoration: "none" }}
+                      >
+                        <Download size={14} /> Download
+                      </a>
                     )}
                   </div>
                 );
