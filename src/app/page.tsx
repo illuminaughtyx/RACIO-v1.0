@@ -58,13 +58,25 @@ export default function Home() {
   const BASIC_RATIOS = ["9:16", "1:1", "16:9"];
   const PRO_RATIOS = ["4:5", "2:3", "21:9"];
 
-  // Check Pro/Lifetime status on mount
+  // Check Pro/Lifetime status and dark mode preference on mount
   React.useEffect(() => {
     if (typeof window !== "undefined") {
       setIsPro(localStorage.getItem("racio_pro") === "true");
       setIsLifetime(localStorage.getItem("racio_lifetime") === "true");
+      // Load dark mode preference (default to dark if not set)
+      const savedDarkMode = localStorage.getItem("racio_dark_mode");
+      if (savedDarkMode !== null) {
+        setIsDark(savedDarkMode === "true");
+      }
     }
   }, []);
+
+  // Save dark mode preference when it changes
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("racio_dark_mode", String(isDark));
+    }
+  }, [isDark]);
 
   // Exit intent detection - show popup when user moves towards browser close
   React.useEffect(() => {
