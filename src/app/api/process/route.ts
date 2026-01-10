@@ -69,11 +69,12 @@ function processVideo({
     return new Promise((resolve, reject) => {
         const command = ffmpeg(input);
 
-        // Build filter chain
+        // Build filter chain - Use FIT mode to preserve all content
+        // FIT: Scale to fit within target, then pad with black/blur to fill
         let filterChain: string[];
 
         if (pad) {
-            // Blurred background padding (for vertical→landscape)
+            // Blurred background padding (premium look)
             filterChain = [
                 `split[main][blur]`,
                 `[blur]scale=${width}:${height}:force_original_aspect_ratio=increase,crop=${width}:${height},boxblur=15:5[bg]`,
@@ -82,7 +83,6 @@ function processVideo({
             ];
 
             if (addWatermark) {
-                // Add watermark text
                 filterChain.push(
                     `[scaled]drawtext=text='RACIO.app':fontsize=20:fontcolor=white@0.5:x=w-tw-10:y=h-th-10:shadowcolor=black@0.3:shadowx=1:shadowy=1`
                 );
@@ -90,14 +90,15 @@ function processVideo({
                 filterChain[filterChain.length - 1] = filterChain[filterChain.length - 1].replace('[scaled]', '');
             }
         } else {
-            // Center crop
+            // FIT mode with black padding (preserves all content including subtitles)
+            // Scale to fit within the target dimensions, then pad to exact size
             if (addWatermark) {
                 filterChain = [
-                    `scale=${width}:${height}:force_original_aspect_ratio=increase,crop=${width}:${height},drawtext=text='RACIO.app':fontsize=20:fontcolor=white@0.5:x=w-tw-10:y=h-th-10:shadowcolor=black@0.3:shadowx=1:shadowy=1`,
+                    `scale=${width}:${height}:force_original_aspect_ratio=decrease,pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2:black,drawtext=text='RACIO.app':fontsize=20:fontcolor=white@0.5:x=w-tw-10:y=h-th-10:shadowcolor=black@0.3:shadowx=1:shadowy=1`,
                 ];
             } else {
                 filterChain = [
-                    `scale=${width}:${height}:force_original_aspect_ratio=increase,crop=${width}:${height}`,
+                    `scale=${width}:${height}:force_original_aspect_ratio=decrease,pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2:black`,
                 ];
             }
         }
