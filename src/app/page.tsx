@@ -270,11 +270,11 @@ export default function Home() {
 
   return (
     <main style={{ minHeight: "100vh", background: theme.bg, color: theme.text, transition: "all 0.3s" }}>
-      {/* Background (dark only) */}
+      {/* Background - Subtle gradient */}
       {isDark && (
         <div style={{ position: "fixed", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
-          <div style={{ position: "absolute", top: "-20%", left: "10%", width: 600, height: 600, background: "rgba(139,92,246,0.15)", borderRadius: "50%", filter: "blur(120px)" }} />
-          <div style={{ position: "absolute", bottom: "-10%", right: "10%", width: 500, height: 500, background: "rgba(59,130,246,0.1)", borderRadius: "50%", filter: "blur(100px)" }} />
+          <div style={{ position: "absolute", top: "-30%", left: "-10%", width: 800, height: 800, background: "rgba(139,92,246,0.08)", borderRadius: "50%", filter: "blur(150px)" }} />
+          <div style={{ position: "absolute", bottom: "-20%", right: "-10%", width: 600, height: 600, background: "rgba(59,130,246,0.05)", borderRadius: "50%", filter: "blur(120px)" }} />
         </div>
       )}
 
@@ -412,20 +412,44 @@ export default function Home() {
               <span className="text-gradient">Post Everywhere.</span>
             </h1>
 
-            <p style={{ fontSize: 18, color: theme.textSecondary, maxWidth: 480, margin: "0 auto 48px" }} className="animate-fade-in-up delay-200">
-              Convert any video to Reels, Shorts & Feed formats in seconds.
+            <p style={{ fontSize: 18, color: theme.textSecondary, maxWidth: 480, margin: "0 auto 24px" }} className="animate-fade-in-up delay-200">
+              Convert any video to Reels, Shorts & Feed formats in 5 seconds.
             </p>
+
+            {/* Trust Badges */}
+            <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 16, marginBottom: 48 }} className="animate-fade-in-up delay-250">
+              <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: theme.textMuted }}>
+                <Check size={14} color="#4ade80" /> No login required
+              </span>
+              <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: theme.textMuted }}>
+                <Check size={14} color="#4ade80" /> Free tier available
+              </span>
+              <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: theme.textMuted }}>
+                <Check size={14} color="#4ade80" /> Works with X, TikTok, YouTube
+              </span>
+            </div>
 
             {/* Upload */}
             <div className="animate-fade-in-up delay-300">
               <div
-                style={{ ...card, padding: 48, borderStyle: "dashed", borderWidth: 2, borderColor: isDragOver ? "#8b5cf6" : theme.border, cursor: "pointer", marginBottom: 24, transition: "all 0.2s" }}
+                style={{
+                  ...card,
+                  padding: 48,
+                  borderStyle: "dashed",
+                  borderWidth: 2,
+                  borderColor: isDragOver ? "#8b5cf6" : theme.border,
+                  cursor: "pointer",
+                  marginBottom: 24,
+                  transition: "all 0.3s ease",
+                  transform: isDragOver ? "scale(1.02)" : "scale(1)",
+                  boxShadow: isDragOver ? "0 0 40px rgba(139,92,246,0.2)" : "none"
+                }}
                 onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
                 onDragLeave={() => setIsDragOver(false)}
                 onDrop={(e) => { e.preventDefault(); setIsDragOver(false); if (e.dataTransfer.files[0]?.type.startsWith("video/")) handleFileSelect(e.dataTransfer.files[0]); }}
                 onClick={() => document.getElementById("file-input")?.click()}
               >
-                <Upload size={40} color={theme.textMuted} style={{ margin: "0 auto 16px" }} />
+                <Upload size={40} color={isDragOver ? "#8b5cf6" : theme.textMuted} style={{ margin: "0 auto 16px", transition: "color 0.3s" }} />
                 <p style={{ fontWeight: 600, marginBottom: 4 }}>{selectedFile ? selectedFile.name : "Drop your video here"}</p>
                 <p style={{ fontSize: 14, color: theme.textMuted }}>{selectedFile ? formatSize(selectedFile.size) : "or click to browse • MP4, MOV up to 500MB"}</p>
                 <input type="file" id="file-input" accept="video/*" style={{ display: "none" }} onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0])} />
