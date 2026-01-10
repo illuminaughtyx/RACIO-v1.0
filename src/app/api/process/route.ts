@@ -69,24 +69,19 @@ function processVideo({
     return new Promise((resolve, reject) => {
         const command = ffmpeg(input);
 
-        // ALWAYS use blurred background fill for Instagram-ready output (no black bars!)
-        // This creates a premium look: video centered with blurred version as background
+        // FIT mode with black padding - clean, professional look
+        // Preserves all content, no cropping, black bars fill empty space
         let filterChain: string[];
 
-        // Blurred background fill (premium, full-screen look)
-        filterChain = [
-            `split[main][blur]`,
-            `[blur]scale=${width}:${height}:force_original_aspect_ratio=increase,crop=${width}:${height},boxblur=20:5[bg]`,
-            `[main]scale=${width}:${height}:force_original_aspect_ratio=decrease[ov]`,
-            `[bg][ov]overlay=(W-w)/2:(H-h)/2[scaled]`,
-        ];
-
+        // Scale to fit within target, then pad with black to exact dimensions
         if (addWatermark) {
-            filterChain.push(
-                `[scaled]drawtext=text='RACIO.app':fontsize=20:fontcolor=white@0.5:x=w-tw-10:y=h-th-10:shadowcolor=black@0.3:shadowx=1:shadowy=1`
-            );
+            filterChain = [
+                `scale=${width}:${height}:force_original_aspect_ratio=decrease,pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2:black,drawtext=text='RACIO.app':fontsize=20:fontcolor=white@0.5:x=w-tw-10:y=h-th-10:shadowcolor=black@0.3:shadowx=1:shadowy=1`,
+            ];
         } else {
-            filterChain[filterChain.length - 1] = filterChain[filterChain.length - 1].replace('[scaled]', '');
+            filterChain = [
+                `scale=${width}:${height}:force_original_aspect_ratio=decrease,pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2:black`,
+            ];
         }
 
         command.complexFilter(filterChain);
