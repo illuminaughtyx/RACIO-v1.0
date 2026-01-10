@@ -281,7 +281,7 @@ export default function Home() {
       {/* Header */}
       <header style={{ position: "relative", zIndex: 10, maxWidth: 1100, margin: "0 auto", padding: "16px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", flexShrink: 0 }} onClick={handleReset}>
-          <span style={{ fontFamily: "'SF Mono', 'Monaco', 'Consolas', monospace", fontSize: 24, fontWeight: 700, color: theme.text, letterSpacing: -1 }}>[RACIO]</span>
+          <span style={{ fontFamily: "var(--font-mono), 'JetBrains Mono', monospace", fontSize: 22, fontWeight: 700, color: theme.text, letterSpacing: -0.5 }}>[RACIO]</span>
           {(isPro || isLifetime) && (
             <span style={{
               padding: "3px 8px",
@@ -744,7 +744,7 @@ export default function Home() {
       {/* Footer */}
       <footer style={{ position: "relative", zIndex: 10, maxWidth: 1100, margin: "0 auto", padding: "32px 24px", borderTop: `1px solid ${theme.border}`, display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontFamily: "'SF Mono', 'Monaco', 'Consolas', monospace", fontSize: 18, fontWeight: 700, color: theme.text, letterSpacing: -1 }}>[RACIO]</span>
+          <span style={{ fontFamily: "var(--font-mono), 'JetBrains Mono', monospace", fontSize: 16, fontWeight: 700, color: theme.text, letterSpacing: -0.5 }}>[RACIO]</span>
         </div>
         <div style={{ display: "flex", gap: 24 }}>
           <a href="#" style={{ fontSize: 14, color: theme.textMuted, textDecoration: "none" }}>Privacy</a>

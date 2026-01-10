@@ -3,6 +3,6 @@
     @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&amp;display=swap');
     .favicon-text { font-family: 'JetBrains Mono', 'SF Mono', 'Monaco', 'Consolas', monospace; font-weight: 700; font-size: 16px; }
   </style>
-  <rect width="32" height="32" fill="#000000"/>
-  <text x="50%" y="52%" dominant-baseline="central" text-anchor="middle" class="favicon-text" fill="#FFFFFF">[R]</text>
+  <rect width="32" height="32" fill="#FFFFFF"/>
+  <text x="50%" y="52%" dominant-baseline="central" text-anchor="middle" class="favicon-text" fill="#000000">[R]</text>
 </svg>
