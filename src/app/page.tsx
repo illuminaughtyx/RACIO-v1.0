@@ -262,14 +262,14 @@ export default function Home() {
       )}
 
       {/* Header */}
-      <header style={{ position: "relative", zIndex: 10, maxWidth: 1100, margin: "0 auto", padding: "24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }} onClick={handleReset}>
-          <img src="/logo.png" alt="RACIO" style={{ height: 48, filter: isDark ? "none" : "invert(1)" }} />
+      <header style={{ position: "relative", zIndex: 10, maxWidth: 1100, margin: "0 auto", padding: "16px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", flexShrink: 0 }} onClick={handleReset}>
+          <img src="/logo.png" alt="RACIO" style={{ height: 40, filter: isDark ? "none" : "invert(1)" }} />
           {(isPro || isLifetime) && (
             <span style={{
-              padding: "4px 10px",
+              padding: "3px 8px",
               borderRadius: 6,
-              fontSize: 11,
+              fontSize: 10,
               fontWeight: 600,
               background: isLifetime ? "linear-gradient(135deg, #fbbf24, #f59e0b)" : "linear-gradient(135deg, #8b5cf6, #a855f7)",
               color: "#fff",
@@ -280,12 +280,12 @@ export default function Home() {
             </span>
           )}
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <a href="#features" style={{ padding: "8px 16px", color: theme.textMuted, textDecoration: "none", fontSize: 14 }}>Features</a>
-          <a href="#pricing" style={{ padding: "8px 16px", color: theme.textMuted, textDecoration: "none", fontSize: 14 }}>Pricing</a>
+        <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "nowrap" }}>
+          <a href="#features" style={{ padding: "6px 10px", color: theme.textMuted, textDecoration: "none", fontSize: 13 }}>Features</a>
+          <a href="#pricing" style={{ padding: "6px 10px", color: theme.textMuted, textDecoration: "none", fontSize: 13 }}>Pricing</a>
 
-          <button onClick={() => setIsDark(!isDark)} style={{ ...card, width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: theme.textSecondary }}>
-            {isDark ? <Sun size={18} /> : <Moon size={18} />}
+          <button onClick={() => setIsDark(!isDark)} style={{ ...card, width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: theme.textSecondary, flexShrink: 0 }}>
+            {isDark ? <Sun size={16} /> : <Moon size={16} />}
           </button>
         </div>
       </header>
