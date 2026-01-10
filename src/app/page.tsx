@@ -270,11 +270,11 @@ export default function Home() {
 
   return (
     <main style={{ minHeight: "100vh", background: theme.bg, color: theme.text, transition: "all 0.3s" }}>
-      {/* Background - Subtle gradient */}
+      {/* Background - Cyan/Teal gradient */}
       {isDark && (
         <div style={{ position: "fixed", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
-          <div style={{ position: "absolute", top: "-30%", left: "-10%", width: 800, height: 800, background: "rgba(139,92,246,0.08)", borderRadius: "50%", filter: "blur(150px)" }} />
-          <div style={{ position: "absolute", bottom: "-20%", right: "-10%", width: 600, height: 600, background: "rgba(59,130,246,0.05)", borderRadius: "50%", filter: "blur(120px)" }} />
+          <div style={{ position: "absolute", top: "-30%", left: "-10%", width: 800, height: 800, background: "rgba(6,182,212,0.08)", borderRadius: "50%", filter: "blur(150px)" }} />
+          <div style={{ position: "absolute", bottom: "-20%", right: "-10%", width: 600, height: 600, background: "rgba(20,184,166,0.06)", borderRadius: "50%", filter: "blur(120px)" }} />
         </div>
       )}
 
