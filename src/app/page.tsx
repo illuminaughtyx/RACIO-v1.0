@@ -478,6 +478,43 @@ export default function Home() {
                 </button>
               </form>
 
+              {/* Try Example Button - High conversion feature */}
+              <div style={{ textAlign: "center", marginTop: 16 }}>
+                <button
+                  onClick={() => {
+                    setUrl("https://x.com/interesting_aIl/status/2010389261195833746");
+                    setTimeout(() => {
+                      const form = document.querySelector("form");
+                      if (form) form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+                    }, 100);
+                  }}
+                  disabled={isUrlLoading}
+                  style={{
+                    background: "transparent",
+                    border: `1px solid ${theme.border}`,
+                    borderRadius: 8,
+                    padding: "8px 16px",
+                    color: theme.textMuted,
+                    fontSize: 13,
+                    cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    transition: "all 0.2s",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = "#06b6d4";
+                    e.currentTarget.style.color = "#06b6d4";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = theme.border;
+                    e.currentTarget.style.color = theme.textMuted;
+                  }}
+                >
+                  <Zap size={14} /> Try with sample video
+                </button>
+              </div>
+
               {/* Aspect Ratio Selector */}
               <div style={{ marginTop: 24 }}>
                 <p style={{ fontSize: 12, color: theme.textMuted, marginBottom: 12, textTransform: "uppercase", letterSpacing: 1 }}>Output Formats</p>
