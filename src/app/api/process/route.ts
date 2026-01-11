@@ -119,6 +119,7 @@ export async function POST(req: NextRequest) {
         let tempDir: string;
         let isPro = false; // Default: add watermark for free users
         let ratios: string[] = ["9:16", "1:1", "16:9"]; // Default ratios
+        let sourceType: "FILE_UPLOAD" | "URL_DOWNLOAD" = "FILE_UPLOAD";
 
         // Ratio configuration: ratio -> {width, height, name, padForVertical}
         const RATIO_CONFIG: Record<string, { width: number; height: number; name: string; padForVertical: boolean }> = {
@@ -159,6 +160,7 @@ export async function POST(req: NextRequest) {
             // Handle JSON request (from URL fetch)
             const body = await req.json();
             const { tempPath, sessionId: existingSessionId, isPro: isProFromBody, ratios: ratiosFromBody } = body;
+            sourceType = "URL_DOWNLOAD";
             isPro = isProFromBody === true;
             if (Array.isArray(ratiosFromBody) && ratiosFromBody.length > 0) {
                 ratios = ratiosFromBody;
@@ -254,6 +256,19 @@ export async function POST(req: NextRequest) {
         });
 
 
+
+        // 📊 Usage Analytics Log (visible in Railway logs)
+        const analyticsLog = {
+            event: "VIDEO_PROCESSED",
+            timestamp: new Date().toISOString(),
+            sessionId,
+            source: sourceType,
+            formats: ratios,
+            formatCount: ratios.length,
+            userType: isPro ? "PRO" : "FREE",
+            filesGenerated: results.length,
+        };
+        console.log("📊 RACIO_ANALYTICS:", JSON.stringify(analyticsLog));
 
         return NextResponse.json({
             sessionId,
