@@ -427,6 +427,9 @@ export default function Home() {
               <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: theme.textMuted }}>
                 <Check size={14} color="#4ade80" /> Works with X, TikTok, YouTube
               </span>
+              <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "#a855f7" }}>
+                <Sparkles size={14} color="#a855f7" /> 1080p for Pro
+              </span>
             </div>
 
             {/* Upload */}
@@ -437,12 +440,12 @@ export default function Home() {
                   padding: 48,
                   borderStyle: "dashed",
                   borderWidth: 2,
-                  borderColor: isDragOver ? "#8b5cf6" : theme.border,
+                  borderColor: isDragOver ? "#8b5cf6" : "rgba(6,182,212,0.3)",
                   cursor: "pointer",
                   marginBottom: 24,
                   transition: "all 0.3s ease",
                   transform: isDragOver ? "scale(1.02)" : "scale(1)",
-                  boxShadow: isDragOver ? "0 0 40px rgba(139,92,246,0.2)" : "none"
+                  boxShadow: isDragOver ? "0 0 40px rgba(139,92,246,0.3)" : "0 0 20px rgba(6,182,212,0.1)"
                 }}
                 onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
                 onDragLeave={() => setIsDragOver(false)}
@@ -585,7 +588,7 @@ export default function Home() {
                 {!(isPro || isLifetime) && (
                   <p style={{ fontSize: 11, color: "#fbbf24", marginTop: 8 }}>
                     <Crown size={10} style={{ marginRight: 4, verticalAlign: "middle" }} />
-                    Pro users get 4:5, 2:3, 21:9 + more
+                    Pro: 1080p HD + custom ratios (4:5, 2:3, 21:9)
                   </p>
                 )}
               </div>
