@@ -76,7 +76,7 @@ function processVideo({
         // Scale to fit within target, then pad with black to exact dimensions
         if (addWatermark) {
             filterChain = [
-                `scale=${width}:${height}:force_original_aspect_ratio=decrease,pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2:black,drawtext=text='RACIO.app':fontsize=20:fontcolor=white@0.5:x=w-tw-10:y=h-th-10:shadowcolor=black@0.3:shadowx=1:shadowy=1`,
+                `scale=${width}:${height}:force_original_aspect_ratio=decrease,pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2:black,drawtext=text='[RACIO]':fontsize=18:fontcolor=white@0.6:x=w-tw-12:y=h-th-12:shadowcolor=black@0.4:shadowx=1:shadowy=1`,
             ];
         } else {
             filterChain = [
