@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useRef, CSSProperties } from "react";
+import Link from "next/link";
 import { Upload, Link as LinkIcon, Loader2, Sparkles, Zap, Shield, Clock, Download, RefreshCcw, CheckCircle2, Package, Check, Star, Crown, Sun, Moon, X, Key } from "lucide-react";
 import { checkUsage, incrementUsage, isProUser, checkUrlUsage, incrementUrlUsage } from "@/lib/usage";
 import LicenseActivation from "@/components/LicenseActivation";
@@ -811,8 +812,8 @@ export default function Home() {
           <span style={{ fontFamily: "var(--font-mono), 'JetBrains Mono', monospace", fontSize: 14, fontWeight: 700, color: theme.text, letterSpacing: 2 }}>[RACIO]</span>
         </div>
         <div style={{ display: "flex", gap: 24 }}>
-          <a href="#" style={{ fontSize: 14, color: theme.textMuted, textDecoration: "none" }}>Privacy</a>
-          <a href="#" style={{ fontSize: 14, color: theme.textMuted, textDecoration: "none" }}>Terms</a>
+          <Link href="/privacy" style={{ fontSize: 14, color: theme.textMuted, textDecoration: "none" }}>Privacy</Link>
+          <Link href="/terms" style={{ fontSize: 14, color: theme.textMuted, textDecoration: "none" }}>Terms</Link>
           <a href="mailto:racioapp@gmail.com" style={{ fontSize: 14, color: theme.textMuted, textDecoration: "none" }}>Contact</a>
         </div>
       </footer>
