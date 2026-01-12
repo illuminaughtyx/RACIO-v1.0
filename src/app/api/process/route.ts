@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from "uuid";
 import ffmpeg from "fluent-ffmpeg";
 import archiver from "archiver";
 import { cleanupOldSessions } from "@/lib/cleanup";
+import { processingQueue } from "@/lib/queue";
 
 // Configure FFmpeg paths
 // In production (Docker), use system ffmpeg
@@ -106,7 +107,14 @@ function processVideo({
 
 
 export async function POST(req: NextRequest) {
+    // Generate request ID for queue tracking
+    const requestId = uuidv4().slice(0, 8);
+    let releaseQueue: (() => void) | null = null;
+
     try {
+        // Acquire queue slot (will wait if server is busy)
+        releaseQueue = await processingQueue.acquire(requestId);
+
         // Trigger cleanup of old sessions (non-blocking)
         cleanupOldSessions().catch(() => { });
 
@@ -282,6 +290,9 @@ export async function POST(req: NextRequest) {
         };
         console.log("📊 RACIO_ANALYTICS:", JSON.stringify(analyticsLog));
 
+        // Release queue slot before returning
+        if (releaseQueue) releaseQueue();
+
         return NextResponse.json({
             sessionId,
             zip: `/api/download?id=${sessionId}&file=racio-bundle.zip`,
@@ -292,6 +303,8 @@ export async function POST(req: NextRequest) {
 
         });
     } catch (error: any) {
+        // Release queue slot on error
+        if (releaseQueue) releaseQueue();
         console.error("Processing error:", error);
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
