@@ -82,5 +82,12 @@ class ProcessingQueue {
     }
 }
 
-// Singleton instance
+// Singleton instances
 export const processingQueue = new ProcessingQueue();
+
+// Separate queue for URL downloads (yt-dlp)
+// Lower concurrency since yt-dlp uses network + can hit rate limits
+export const downloadQueue = new ProcessingQueue();
+// Override settings for download queue
+(downloadQueue as any).maxConcurrent = 2;
+(downloadQueue as any).maxQueueSize = 10;

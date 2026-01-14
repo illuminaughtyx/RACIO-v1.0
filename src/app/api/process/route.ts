@@ -51,7 +51,10 @@ function getVideoMetadata(filePath: string): Promise<any> {
     });
 }
 
-// Helper to process video - OPTIMIZED for speed
+// FFmpeg processing timeout (120 seconds per video)
+const FFMPEG_TIMEOUT = 120000;
+
+// Helper to process video - OPTIMIZED for speed with timeout protection
 function processVideo({
     input,
     output,
@@ -69,6 +72,15 @@ function processVideo({
 }): Promise<string> {
     return new Promise((resolve, reject) => {
         const command = ffmpeg(input);
+        let completed = false;
+
+        // Timeout protection - kill FFmpeg after 120 seconds
+        const timeout = setTimeout(() => {
+            if (!completed) {
+                command.kill('SIGTERM');
+                reject(new Error("Video processing timed out. Try a shorter video."));
+            }
+        }, FFMPEG_TIMEOUT);
 
         // FIT mode with black padding - clean, professional look
         // Preserves all content, no cropping, black bars fill empty space
@@ -99,8 +111,16 @@ function processVideo({
             .audioCodec('aac')
             .audioBitrate('128k')
             .output(output)
-            .on("end", () => resolve(output))
-            .on("error", (err: any) => reject(err))
+            .on("end", () => {
+                completed = true;
+                clearTimeout(timeout);
+                resolve(output);
+            })
+            .on("error", (err: any) => {
+                completed = true;
+                clearTimeout(timeout);
+                reject(err);
+            })
             .run();
     });
 }
@@ -244,21 +264,23 @@ export async function POST(req: NextRequest) {
             });
         }
 
-        // Process in parallel - Add watermark for free users only
+        // Process SEQUENTIALLY (not parallel) - reduces CPU pressure for multiple users
+        // Add watermark for free users only
         const addWatermark = !isPro;
-        const promises = targets.map((t) => {
+        const results: { name: string; path: string }[] = [];
+
+        for (const t of targets) {
             const outputPath = path.join(tempDir, `${t.name}.mp4`);
-            return processVideo({
+            await processVideo({
                 input: inputPath,
                 output: outputPath,
                 width: t.width,
                 height: t.height,
                 pad: t.pad,
                 addWatermark,
-            }).then(() => ({ name: t.name, path: outputPath }));
-        });
-
-        const results = await Promise.all(promises);
+            });
+            results.push({ name: t.name, path: outputPath });
+        }
 
         // Create ZIP
         const zipPath = path.join(tempDir, "racio-bundle.zip");

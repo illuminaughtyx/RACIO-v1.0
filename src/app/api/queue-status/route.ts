@@ -1,17 +1,24 @@
 import { NextResponse } from "next/server";
-import { processingQueue } from "@/lib/queue";
+import { processingQueue, downloadQueue } from "@/lib/queue";
 
 /**
  * GET /api/queue-status
  * Returns current queue status for monitoring
  */
 export async function GET() {
-    const status = processingQueue.getStatus();
+    const processStatus = processingQueue.getStatus();
+    const downloadStatus = downloadQueue.getStatus();
     const estimatedWait = processingQueue.getEstimatedWait();
 
     return NextResponse.json({
-        ...status,
+        // Combined view for frontend
+        active: processStatus.active + downloadStatus.active,
+        queued: processStatus.queued + downloadStatus.queued,
+        maxConcurrent: processStatus.maxConcurrent,
         estimatedWaitSeconds: estimatedWait,
-        serverLoad: status.active === status.maxConcurrent ? "HIGH" : status.active > 0 ? "MEDIUM" : "LOW",
+        serverLoad: processStatus.active === processStatus.maxConcurrent ? "HIGH" : processStatus.active > 0 ? "MEDIUM" : "LOW",
+        // Detailed breakdown
+        processing: processStatus,
+        downloads: downloadStatus,
     });
 }

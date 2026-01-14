@@ -3,7 +3,8 @@ import { mkdir } from "fs/promises";
 import path from "path";
 import os from "os";
 import { v4 as uuidv4 } from "uuid";
-import { spawn } from "child_process";
+import { spawn, ChildProcess } from "child_process";
+import { downloadQueue } from "@/lib/queue";
 
 // Validate Twitter/X URL
 function isValidTwitterUrl(url: string): boolean {
@@ -15,8 +16,16 @@ function isValidTwitterUrl(url: string): boolean {
     return patterns.some(p => p.test(url));
 }
 
+// Download timeout in milliseconds (60 seconds)
+const DOWNLOAD_TIMEOUT = 60000;
+
 export async function POST(req: NextRequest) {
+    const requestId = uuidv4().slice(0, 8);
+    let releaseQueue: (() => void) | null = null;
+
     try {
+        // Acquire queue slot (will wait if server is busy)
+        releaseQueue = await downloadQueue.acquire(requestId);
         const body = await req.json();
         const { url } = body;
 
@@ -35,7 +44,7 @@ export async function POST(req: NextRequest) {
 
         const outputPath = path.join(tempDir, "input.mp4");
 
-        // Download video using system yt-dlp with improved options
+        // Download video using system yt-dlp with improved options + timeout
         await new Promise<void>((resolve, reject) => {
             const args = [
                 url,
@@ -49,15 +58,26 @@ export async function POST(req: NextRequest) {
                 "--socket-timeout", "30",
             ];
 
-            const process = spawn("yt-dlp", args);
-
+            const ytdlpProcess = spawn("yt-dlp", args);
             let stderr = "";
+            let completed = false;
 
-            process.stderr?.on("data", (data) => {
+            // Timeout protection - kill process after 60 seconds
+            const timeout = setTimeout(() => {
+                if (!completed) {
+                    ytdlpProcess.kill('SIGTERM');
+                    reject(new Error("Download timed out. Please try a shorter video."));
+                }
+            }, DOWNLOAD_TIMEOUT);
+
+            ytdlpProcess.stderr?.on("data", (data) => {
                 stderr += data.toString();
             });
 
-            process.on("close", (code) => {
+            ytdlpProcess.on("close", (code) => {
+                completed = true;
+                clearTimeout(timeout);
+
                 if (code === 0) {
                     resolve();
                 } else {
@@ -74,10 +94,15 @@ export async function POST(req: NextRequest) {
                 }
             });
 
-            process.on("error", (err) => {
+            ytdlpProcess.on("error", (err) => {
+                completed = true;
+                clearTimeout(timeout);
                 reject(new Error("Download service unavailable. Please try again."));
             });
         });
+
+        // Release queue on success
+        if (releaseQueue) releaseQueue();
 
         // Now forward to the processing endpoint
         return NextResponse.json({
@@ -88,6 +113,8 @@ export async function POST(req: NextRequest) {
         });
 
     } catch (error: any) {
+        // Release queue on error
+        if (releaseQueue) releaseQueue();
         console.error("Download error:", error);
 
         return NextResponse.json({

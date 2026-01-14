@@ -53,8 +53,10 @@ export default function Home() {
   const [showLicenseModal, setShowLicenseModal] = useState(false);
   const [showExitPopup, setShowExitPopup] = useState(false);
   const [selectedRatios, setSelectedRatios] = useState<string[]>(["9:16", "1:1", "16:9"]);
+  const [queueStatus, setQueueStatus] = useState<{ active: number; queued: number; position?: number } | null>(null);
   const exitPopupShown = useRef(false);
   const progressInterval = useRef<NodeJS.Timeout | null>(null);
+  const queuePollInterval = useRef<NodeJS.Timeout | null>(null);
 
   // Available aspect ratios
   const BASIC_RATIOS = ["9:16", "1:1", "16:9"];
@@ -164,12 +166,29 @@ export default function Home() {
         setStage(stages[i].stage);
       }
     }, 1200);
+
+    // Start polling queue status
+    const pollQueue = async () => {
+      try {
+        const res = await fetch("/api/queue-status");
+        if (res.ok) {
+          const data = await res.json();
+          setQueueStatus(data);
+        }
+      } catch (e) {
+        // Ignore errors
+      }
+    };
+    pollQueue(); // Initial fetch
+    queuePollInterval.current = setInterval(pollQueue, 3000); // Poll every 3s
   };
 
   const stopProgress = () => {
     if (progressInterval.current) clearInterval(progressInterval.current);
+    if (queuePollInterval.current) clearInterval(queuePollInterval.current);
     setProgress(100);
     setStage("Complete!");
+    setQueueStatus(null);
   };
 
   const handleFileSelect = async (file: File) => {
@@ -609,6 +628,25 @@ export default function Home() {
             </div>
             <h2 style={{ fontSize: 28, fontWeight: 700, marginBottom: 8 }}>{processingMessage}</h2>
             <p style={{ color: theme.textMuted }}>{stage}</p>
+
+            {/* Queue Status Indicator */}
+            {queueStatus && queueStatus.queued > 0 && (
+              <div style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                marginTop: 16,
+                padding: "8px 16px",
+                borderRadius: 100,
+                background: "rgba(251,191,36,0.1)",
+                border: "1px solid rgba(251,191,36,0.2)",
+              }}>
+                <span style={{ color: "#fbbf24", fontSize: 13 }}>
+                  ⏳ {queueStatus.queued} {queueStatus.queued === 1 ? "user" : "users"} ahead • ~{Math.ceil(queueStatus.queued * 15 / 2)}s wait
+                </span>
+              </div>
+            )}
+
             {progress > 0 && (
               <div style={{ maxWidth: 300, margin: "32px auto 0" }}>
                 <div style={{ height: 8, background: theme.border, borderRadius: 100, overflow: "hidden" }}>
