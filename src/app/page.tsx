@@ -440,8 +440,8 @@ export default function Home() {
             </div>
 
             <h1 style={{ fontSize: "clamp(40px, 8vw, 72px)", fontWeight: 700, letterSpacing: -2, marginBottom: 24, lineHeight: 1 }} className="animate-fade-in-up delay-100">
-              Paste Once.<br />
-              <span className="text-gradient">Post Everywhere.</span>
+              One Image.<br />
+              <span className="text-gradient">Every Ratio.</span>
             </h1>
 
             <p style={{ fontSize: 18, color: theme.textSecondary, maxWidth: 480, margin: "0 auto 24px" }} className="animate-fade-in-up delay-200">
@@ -822,7 +822,7 @@ export default function Home() {
             <h3 style={{ fontSize: 20, fontWeight: 700, marginTop: 16, marginBottom: 4 }}>Pro</h3>
             <p style={{ fontSize: 28, fontWeight: 700, marginBottom: 20 }}>$7 <span style={{ fontSize: 14, fontWeight: 400, color: theme.textMuted }}>/mo</span></p>
             <ul style={{ listStyle: "none", marginBottom: 24 }}>
-              {["✨ No watermark", "🎬 1080p HD quality", "Custom ratios (4:5, 2:3...)", "Unlimited videos", "X/Twitter downloader"].map(f => (
+              {["✨ No watermark", "🎬 1080p HD quality", "Custom ratios (4:5, 2:3...)", "Unlimited conversions", "X/Twitter downloader"].map(f => (
                 <li key={f} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, fontSize: 14 }}>
                   <Check size={14} color="#4ade80" /> {f}
                 </li>
