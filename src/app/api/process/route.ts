@@ -41,13 +41,53 @@ function configureFfmpeg() {
 
 configureFfmpeg();
 
-// Helper to get video metadata
 function getVideoMetadata(filePath: string): Promise<any> {
     return new Promise((resolve, reject) => {
         ffmpeg.ffprobe(filePath, (err: any, metadata: any) => {
             if (err) reject(err);
             else resolve(metadata.streams.find((s: any) => s.width && s.height));
         });
+    });
+}
+
+// Detect if input is an image based on extension
+function isImageFile(filePath: string): boolean {
+    const ext = path.extname(filePath).toLowerCase();
+    const imageExts = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".tiff", ".tif"];
+    return imageExts.includes(ext);
+}
+
+// Process image with FFmpeg
+function processImage({
+    input,
+    output,
+    width,
+    height,
+    addWatermark = false,
+}: {
+    input: string;
+    output: string;
+    width: number;
+    height: number;
+    addWatermark?: boolean;
+}): Promise<string> {
+    return new Promise((resolve, reject) => {
+        let filterChain = `scale=${width}:${height}:force_original_aspect_ratio=decrease,pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2:black`;
+
+        if (addWatermark) {
+            filterChain += `,drawtext=text='[RACIO]':fontsize=18:fontcolor=white@0.6:x=w-tw-12:y=h-th-12:shadowcolor=black@0.4:shadowx=1:shadowy=1`;
+        }
+
+        ffmpeg(input)
+            .outputOptions([
+                '-vf', filterChain,
+                '-q:v', '2', // High quality JPEG
+                '-y',
+            ])
+            .output(output)
+            .on("end", () => resolve(output))
+            .on("error", (err: any) => reject(err))
+            .run();
     });
 }
 
@@ -264,21 +304,38 @@ export async function POST(req: NextRequest) {
             });
         }
 
+        // Detect if input is image or video
+        const isImage = isImageFile(inputPath);
+        const fileExt = isImage ? ".jpg" : ".mp4";
+
         // Process SEQUENTIALLY (not parallel) - reduces CPU pressure for multiple users
         // Add watermark for free users only
         const addWatermark = !isPro;
         const results: { name: string; path: string }[] = [];
 
         for (const t of targets) {
-            const outputPath = path.join(tempDir, `${t.name}.mp4`);
-            await processVideo({
-                input: inputPath,
-                output: outputPath,
-                width: t.width,
-                height: t.height,
-                pad: t.pad,
-                addWatermark,
-            });
+            const outputPath = path.join(tempDir, `${t.name}${fileExt}`);
+
+            if (isImage) {
+                // Image processing
+                await processImage({
+                    input: inputPath,
+                    output: outputPath,
+                    width: t.width,
+                    height: t.height,
+                    addWatermark,
+                });
+            } else {
+                // Video processing
+                await processVideo({
+                    input: inputPath,
+                    output: outputPath,
+                    width: t.width,
+                    height: t.height,
+                    pad: t.pad,
+                    addWatermark,
+                });
+            }
             results.push({ name: t.name, path: outputPath });
         }
 
@@ -292,7 +349,7 @@ export async function POST(req: NextRequest) {
             archive.on("error", reject);
             archive.pipe(output);
             results.forEach((r) => {
-                archive.file(r.path, { name: `${r.name}.mp4` });
+                archive.file(r.path, { name: `${r.name}${fileExt}` });
             });
             archive.finalize();
         });
