@@ -48,7 +48,7 @@ export default function Pricing() {
                     </div>
 
                     <ul className="flex-1 space-y-3 mb-6 text-sm">
-                        {["3 videos/day", "Standard speed", "50MB max"].map((f) => (
+                        {["5 conversions/day", "Standard speed", "10MB max"].map((f) => (
                             <li key={f} className="flex items-center gap-2 text-[var(--text-secondary)]">
                                 <Check size={14} className="text-[var(--text-muted)]" />
                                 {f}
@@ -76,7 +76,7 @@ export default function Pricing() {
                     </div>
 
                     <ul className="flex-1 space-y-3 mb-6 text-sm">
-                        {["Unlimited videos", "5x faster", "2GB max", "X/Twitter downloader"].map((f) => (
+                        {["Unlimited conversions", "5x faster", "100MB max", "Video support (Beta)"].map((f) => (
                             <li key={f} className="flex items-center gap-2">
                                 <Check size={14} className="text-green-400" />
                                 {f}

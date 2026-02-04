@@ -36,7 +36,7 @@ export default function Home() {
   const [step, setStep] = useState<"upload" | "processing" | "results">("upload");
   const [resultsData, setResultsData] = useState<any>(null);
   const [isUrlLoading, setIsUrlLoading] = useState(false);
-  const [processingMessage, setProcessingMessage] = useState("Processing Video");
+  const [processingMessage, setProcessingMessage] = useState("Processing");
   const [progress, setProgress] = useState(0);
   const [stage, setStage] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -54,9 +54,21 @@ export default function Home() {
   const [showExitPopup, setShowExitPopup] = useState(false);
   const [selectedRatios, setSelectedRatios] = useState<string[]>(["9:16", "1:1", "16:9"]);
   const [queueStatus, setQueueStatus] = useState<{ active: number; queued: number; position?: number } | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+  const [mediaType, setMediaType] = useState<"image" | "video">("image");
   const exitPopupShown = useRef(false);
   const progressInterval = useRef<NodeJS.Timeout | null>(null);
   const queuePollInterval = useRef<NodeJS.Timeout | null>(null);
+
+  // Detect mobile on mount
+  React.useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768 || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   // Available aspect ratios
   const BASIC_RATIOS = ["9:16", "1:1", "16:9"];
@@ -424,7 +436,7 @@ export default function Home() {
           <>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 8, ...card, padding: "10px 18px", borderRadius: 100, marginBottom: 32 }} className="animate-fade-in-up">
               <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#4ade80" }} className="animate-pulse" />
-              <span style={{ fontSize: 14, color: theme.textSecondary }}>The Ratio Engine</span>
+              <span style={{ fontSize: 14, color: theme.textSecondary }}>Image-First Ratio Engine</span>
             </div>
 
             <h1 style={{ fontSize: "clamp(40px, 8vw, 72px)", fontWeight: 700, letterSpacing: -2, marginBottom: 24, lineHeight: 1 }} className="animate-fade-in-up delay-100">
@@ -433,7 +445,7 @@ export default function Home() {
             </h1>
 
             <p style={{ fontSize: 18, color: theme.textSecondary, maxWidth: 480, margin: "0 auto 24px" }} className="animate-fade-in-up delay-200">
-              Convert any video to Reels, Shorts & Feed formats in 5 seconds.
+              Convert any image into every platform-ready format in &lt;1s.
             </p>
 
             {/* Trust Badges */}
@@ -445,7 +457,7 @@ export default function Home() {
                 <Check size={14} color="#4ade80" /> Free tier available
               </span>
               <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: theme.textMuted }}>
-                <Check size={14} color="#4ade80" /> Works with X, TikTok, YouTube
+                <Check size={14} color="#4ade80" /> Works with any image
               </span>
               <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "#a855f7" }}>
                 <Sparkles size={14} color="#a855f7" /> 1080p for Pro
@@ -469,13 +481,13 @@ export default function Home() {
                 }}
                 onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
                 onDragLeave={() => setIsDragOver(false)}
-                onDrop={(e) => { e.preventDefault(); setIsDragOver(false); if (e.dataTransfer.files[0]?.type.startsWith("video/")) handleFileSelect(e.dataTransfer.files[0]); }}
+                onDrop={(e) => { e.preventDefault(); setIsDragOver(false); const file = e.dataTransfer.files[0]; if (file && (file.type.startsWith("image/") || file.type.startsWith("video/"))) handleFileSelect(file); }}
                 onClick={() => document.getElementById("file-input")?.click()}
               >
                 <Upload size={40} color={isDragOver ? "#8b5cf6" : theme.textMuted} style={{ margin: "0 auto 16px", transition: "color 0.3s" }} />
-                <p style={{ fontWeight: 600, marginBottom: 4 }}>{selectedFile ? selectedFile.name : "Drop your video here"}</p>
-                <p style={{ fontSize: 14, color: theme.textMuted }}>{selectedFile ? formatSize(selectedFile.size) : "or click to browse • MP4, MOV up to 500MB"}</p>
-                <input type="file" id="file-input" accept="video/*" style={{ display: "none" }} onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0])} />
+                <p style={{ fontWeight: 600, marginBottom: 4 }}>{selectedFile ? selectedFile.name : "Drop your image or video here"}</p>
+                <p style={{ fontSize: 14, color: theme.textMuted }}>{selectedFile ? formatSize(selectedFile.size) : "or click to browse • JPG, PNG, MP4 up to 50MB"}</p>
+                <input type="file" id="file-input" accept="image/*,video/*" style={{ display: "none" }} onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0])} />
               </div>
 
               <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24 }}>
@@ -664,8 +676,8 @@ export default function Home() {
               <CheckCircle2 size={16} color="#4ade80" />
               <span style={{ fontSize: 14, color: "#4ade80", fontWeight: 500 }}>Ready!</span>
             </div>
-            <h2 style={{ fontSize: 32, fontWeight: 700, marginBottom: 8 }}>Your Videos Are <span className="text-gradient">Ready</span></h2>
-            <p style={{ color: theme.textMuted, marginBottom: 16 }}>3 formats optimized for every platform</p>
+            <h2 style={{ fontSize: 32, fontWeight: 700, marginBottom: 8 }}>Your {resultsData.type === "video" ? "Videos" : "Images"} Are <span className="text-gradient">Ready</span></h2>
+            <p style={{ color: theme.textMuted, marginBottom: 16 }}>{resultsData.results?.length || 3} formats optimized for every platform</p>
 
             {/* Watermark Notice for Free Users */}
             {!isPro && !isLifetime && (
@@ -700,10 +712,18 @@ export default function Home() {
             )}
 
             <div style={{ display: "flex", flexWrap: "wrap", gap: 12, justifyContent: "center", marginBottom: 24 }}>
-              {downloadedAll ? (
-                <button disabled style={{ ...btn, opacity: 0.5, cursor: "default", background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)" }}><CheckCircle2 size={18} /> Downloaded</button>
-              ) : (
-                <a href={resultsData.zip} download onClick={() => setDownloadedAll(true)} style={{ ...btn, textDecoration: "none" }}><Package size={18} /> Download All</a>
+              {/* On mobile: hide ZIP, show individual downloads. On desktop: show both options */}
+              {!isMobile && resultsData.zip && (
+                downloadedAll ? (
+                  <button disabled style={{ ...btn, opacity: 0.5, cursor: "default", background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)" }}><CheckCircle2 size={18} /> Downloaded</button>
+                ) : (
+                  <a href={resultsData.zip} download onClick={() => setDownloadedAll(true)} style={{ ...btn, textDecoration: "none" }}><Package size={18} /> Download All (ZIP)</a>
+                )
+              )}
+              {isMobile && (
+                <p style={{ fontSize: 13, color: theme.textMuted, width: "100%", textAlign: "center", marginBottom: 8 }}>
+                  📱 Tap each format to download individually
+                </p>
               )}
               <button onClick={handleReset} style={btnSecondary}><RefreshCcw size={18} /> Process Another</button>
             </div>
@@ -754,7 +774,7 @@ export default function Home() {
       {step === "upload" && (
         <section id="features" style={{ position: "relative", zIndex: 10, maxWidth: 1100, margin: "0 auto", padding: "80px 24px", borderTop: `1px solid ${theme.border}` }}>
           <h2 style={{ fontSize: 32, fontWeight: 700, textAlign: "center", marginBottom: 16 }}>Why creators love <span className="text-gradient">RACIO</span></h2>
-          <p style={{ textAlign: "center", color: theme.textMuted, marginBottom: 48 }}>One video in, three formats out.</p>
+          <p style={{ textAlign: "center", color: theme.textMuted, marginBottom: 48 }}>One image in, every format out.</p>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 24 }}>
             {[
@@ -786,7 +806,7 @@ export default function Home() {
             <h3 style={{ fontSize: 20, fontWeight: 700, marginTop: 16, marginBottom: 4 }}>Starter</h3>
             <p style={{ fontSize: 28, fontWeight: 700, marginBottom: 20 }}>$0 <span style={{ fontSize: 14, fontWeight: 400, color: theme.textMuted }}>/forever</span></p>
             <ul style={{ listStyle: "none", marginBottom: 24 }}>
-              {["3 videos/day", "720p quality", "Watermarked videos", "50MB max"].map(f => (
+              {["5 conversions/day", "Standard quality", "Watermarked", "10MB max"].map(f => (
                 <li key={f} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, fontSize: 14, color: theme.textSecondary }}>
                   <Check size={14} color={theme.textMuted} /> {f}
                 </li>
