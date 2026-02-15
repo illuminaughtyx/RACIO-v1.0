@@ -12,9 +12,7 @@
   },
   "dependencies": {
     "@stripe/stripe-js": "^8.6.0",
-    "@types/archiver": "^7.0.0",
     "@types/uuid": "^10.0.0",
-    "archiver": "^7.0.1",
     "clsx": "^2.1.1",
     "ffmpeg-static": "^5.3.0",
     "ffprobe-static": "^3.1.0",
