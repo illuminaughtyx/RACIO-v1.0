@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useRef, CSSProperties } from "react";
 import Link from "next/link";
-import { Upload, Link as LinkIcon, Loader2, Sparkles, Zap, Shield, Clock, Download, RefreshCcw, CheckCircle2, Check, Star, Crown, Sun, Moon, X, Key, Package } from "lucide-react";
+import { Upload, Link as LinkIcon, Loader2, Sparkles, Zap, Shield, Clock, Download, RefreshCcw, CheckCircle2, Check, Star, Crown, Sun, Moon, X, Key, Package, Smartphone, Grid, Monitor, Film, Image as ImageIcon } from "lucide-react";
 import { checkUsage, incrementUsage, isProUser, checkUrlUsage, incrementUrlUsage } from "@/lib/usage";
 import LicenseActivation from "@/components/LicenseActivation";
 
@@ -74,6 +74,15 @@ export default function Home() {
   // Available aspect ratios
   const BASIC_RATIOS = ["9:16", "1:1", "16:9"];
   const PRO_RATIOS = ["4:5", "2:3", "21:9"];
+
+  const RATIO_CONFIG: Record<string, { Icon: any; label: string }> = {
+    "9:16": { Icon: Smartphone, label: "Story / Reel" },
+    "1:1": { Icon: Grid, label: "Post (Square)" },
+    "16:9": { Icon: Monitor, label: "YouTube / TV" },
+    "4:5": { Icon: ImageIcon, label: "Portrait" },
+    "2:3": { Icon: ImageIcon, label: "Classic" },
+    "21:9": { Icon: Film, label: "Cinema" },
+  };
 
   // Check Pro/Lifetime status and dark mode preference on mount
   React.useEffect(() => {
@@ -574,77 +583,107 @@ export default function Home() {
               </div>
 
               {/* Aspect Ratio Selector */}
+              {/* Aspect Ratio Selector - Visual Cards */}
               <div style={{ marginTop: 24 }}>
-                <p style={{ fontSize: 12, color: theme.textMuted, marginBottom: 12, textTransform: "uppercase", letterSpacing: 1 }}>Output Formats</p>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center" }}>
-                  {/* Basic Ratios - Always available */}
-                  {BASIC_RATIOS.map(ratio => (
-                    <button
-                      key={ratio}
-                      onClick={() => {
-                        if (selectedRatios.includes(ratio)) {
-                          if (selectedRatios.length > 1) setSelectedRatios(selectedRatios.filter(r => r !== ratio));
-                        } else {
-                          setSelectedRatios([...selectedRatios, ratio]);
-                        }
-                      }}
-                      style={{
-                        ...card,
-                        padding: "8px 16px",
-                        fontSize: 13,
-                        fontWeight: 600,
-                        cursor: "pointer",
-                        background: selectedRatios.includes(ratio) ? "rgba(139,92,246,0.2)" : theme.cardBg,
-                        borderColor: selectedRatios.includes(ratio) ? "#8b5cf6" : theme.border,
-                        color: selectedRatios.includes(ratio) ? "#a855f7" : theme.textSecondary,
-                      }}
-                    >
-                      {ratio}
-                    </button>
-                  ))}
+                <p style={{ fontSize: 12, color: theme.textMuted, marginBottom: 12, textTransform: "uppercase", letterSpacing: 1, fontWeight: 600 }}>Output Formats</p>
 
-                  {/* Pro Ratios - Locked for free users */}
-                  {PRO_RATIOS.map(ratio => (
-                    <button
-                      key={ratio}
-                      onClick={() => {
-                        if (isPro || isLifetime) {
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
+
+                  {/* Basic Ratios */}
+                  {BASIC_RATIOS.map(ratio => {
+                    const config = RATIO_CONFIG[ratio] || { Icon: ImageIcon, label: ratio };
+                    const isSelected = selectedRatios.includes(ratio);
+
+                    return (
+                      <button
+                        key={ratio}
+                        onClick={() => {
                           if (selectedRatios.includes(ratio)) {
-                            setSelectedRatios(selectedRatios.filter(r => r !== ratio));
+                            if (selectedRatios.length > 1) setSelectedRatios(selectedRatios.filter(r => r !== ratio));
                           } else {
                             setSelectedRatios([...selectedRatios, ratio]);
                           }
-                        } else {
-                          setShowModal(true);
-                          setModalContent({
-                            title: "Pro Feature",
-                            desc: `Custom aspect ratios like ${ratio} are available with Pro. Upgrade to unlock!`
-                          });
-                        }
-                      }}
-                      style={{
-                        ...card,
-                        padding: "8px 16px",
-                        fontSize: 13,
-                        fontWeight: 600,
-                        cursor: "pointer",
-                        background: selectedRatios.includes(ratio) ? "rgba(251,191,36,0.2)" : theme.cardBg,
-                        borderColor: selectedRatios.includes(ratio) ? "#fbbf24" : theme.border,
-                        color: selectedRatios.includes(ratio) ? "#fbbf24" : theme.textMuted,
-                        opacity: (isPro || isLifetime) ? 1 : 0.6,
-                        position: "relative",
-                      }}
-                    >
-                      {ratio}
-                      {!(isPro || isLifetime) && <Crown size={10} style={{ marginLeft: 4 }} color="#fbbf24" />}
-                    </button>
-                  ))}
+                        }}
+                        style={{
+                          ...card,
+                          background: isSelected ? "rgba(139,92,246,0.15)" : theme.cardBg,
+                          borderColor: isSelected ? "#8b5cf6" : theme.border,
+                          color: isSelected ? "#a78bfa" : theme.textSecondary,
+                          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+                          padding: "16px 8px", borderRadius: 12,
+                          cursor: "pointer", transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+                          boxShadow: isSelected ? "0 4px 12px rgba(139,92,246,0.2)" : "none",
+                          position: "relative", overflow: "hidden"
+                        }}
+                      >
+                        <div style={{ marginBottom: 8, padding: 8, borderRadius: "50%", background: isSelected ? "rgba(139,92,246,0.2)" : "rgba(255,255,255,0.03)" }}>
+                          <config.Icon size={20} strokeWidth={2} />
+                        </div>
+                        <span style={{ fontSize: 11, fontWeight: 600, opacity: 0.9 }}>{config.label}</span>
+                        <span style={{ fontSize: 9, opacity: 0.5, marginTop: 2, fontFamily: "monospace" }}>{ratio}</span>
+                      </button>
+                    );
+                  })}
+
+                  {/* Pro Ratios */}
+                  {PRO_RATIOS.map(ratio => {
+                    const config = RATIO_CONFIG[ratio] || { Icon: ImageIcon, label: ratio };
+                    const isSelected = selectedRatios.includes(ratio);
+                    const isLocked = !(isPro || isLifetime);
+
+                    return (
+                      <button
+                        key={ratio}
+                        onClick={() => {
+                          if (!isLocked) {
+                            if (selectedRatios.includes(ratio)) {
+                              setSelectedRatios(selectedRatios.filter(r => r !== ratio));
+                            } else {
+                              setSelectedRatios([...selectedRatios, ratio]);
+                            }
+                          } else {
+                            setShowModal(true);
+                            setModalContent({
+                              title: "Pro Feature",
+                              desc: `Custom aspect ratios like ${ratio} (and 21:9 Cinema) are available with Pro.`
+                            });
+                          }
+                        }}
+                        style={{
+                          ...card,
+                          background: isSelected ? "rgba(251,191,36,0.15)" : theme.cardBg,
+                          borderColor: isSelected ? "#fbbf24" : theme.border,
+                          color: isSelected ? "#fbbf24" : theme.textMuted,
+                          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+                          padding: "16px 8px", borderRadius: 12,
+                          cursor: isLocked ? "default" : "pointer",
+                          opacity: isLocked ? 0.7 : 1,
+                          transition: "all 0.2s",
+                          position: "relative"
+                        }}
+                      >
+                        {isLocked && (
+                          <div style={{ position: "absolute", top: 6, right: 6, background: "rgba(251,191,36,0.1)", borderRadius: "50%", padding: 3 }}>
+                            <Crown size={10} color="#fbbf24" />
+                          </div>
+                        )}
+                        <div style={{ marginBottom: 8, padding: 8, borderRadius: "50%", background: isSelected ? "rgba(251,191,36,0.2)" : "rgba(255,255,255,0.03)" }}>
+                          <config.Icon size={20} strokeWidth={2} />
+                        </div>
+                        <span style={{ fontSize: 11, fontWeight: 600, opacity: 0.9 }}>{config.label}</span>
+                        <span style={{ fontSize: 9, opacity: 0.5, marginTop: 2, fontFamily: "monospace" }}>{ratio}</span>
+                      </button>
+                    );
+                  })}
                 </div>
+
                 {!(isPro || isLifetime) && (
-                  <p style={{ fontSize: 11, color: "#fbbf24", marginTop: 8 }}>
-                    <Crown size={10} style={{ marginRight: 4, verticalAlign: "middle" }} />
-                    Pro: 1080p HD + custom ratios (4:5, 2:3, 21:9)
-                  </p>
+                  <div style={{ marginTop: 16, padding: "10px 16px", background: "rgba(251,191,36,0.05)", borderRadius: 8, border: "1px dashed rgba(251,191,36,0.3)", display: "flex", alignItems: "center", gap: 10 }}>
+                    <Crown size={14} color="#fbbf24" />
+                    <p style={{ fontSize: 12, color: "#fbbf24", margin: 0 }}>
+                      <span style={{ fontWeight: 600 }}>Pro Tip:</span> Unlock cinematic 21:9 & portrait 4:5 ratios.
+                    </p>
+                  </div>
                 )}
               </div>
 
