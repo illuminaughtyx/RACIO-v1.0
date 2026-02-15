@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useRef, CSSProperties } from "react";
 import Link from "next/link";
-import { Upload, Link as LinkIcon, Loader2, Sparkles, Zap, Shield, Clock, Download, RefreshCcw, CheckCircle2, Check, Star, Crown, Sun, Moon, X, Key } from "lucide-react";
+import { Upload, Link as LinkIcon, Loader2, Sparkles, Zap, Shield, Clock, Download, RefreshCcw, CheckCircle2, Check, Star, Crown, Sun, Moon, X, Key, Package } from "lucide-react";
 import { checkUsage, incrementUsage, isProUser, checkUrlUsage, incrementUrlUsage } from "@/lib/usage";
 import LicenseActivation from "@/components/LicenseActivation";
 
@@ -49,6 +49,7 @@ export default function Home() {
   const [isPro, setIsPro] = useState(false);
   const [isLifetime, setIsLifetime] = useState(false);
 
+  const [downloadedAll, setDownloadedAll] = useState(false);
   const [downloadedFiles, setDownloadedFiles] = useState<Set<string>>(new Set());
   const [showLicenseModal, setShowLicenseModal] = useState(false);
   const [showExitPopup, setShowExitPopup] = useState(false);
@@ -112,6 +113,28 @@ export default function Home() {
     document.addEventListener("mouseleave", handleMouseLeave);
     return () => document.removeEventListener("mouseleave", handleMouseLeave);
   }, [isPro, isLifetime]);
+
+  const handleDownloadAll = async () => {
+    if (!resultsData?.files) return;
+
+    setDownloadedAll(true);
+
+    // Trigger sequential downloads to prevent browser blocking
+    for (const file of resultsData.files) {
+      const link = document.createElement("a");
+      link.href = file.url;
+      link.download = file.name;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Mark as downloaded visually
+      setDownloadedFiles(prev => new Set([...prev, file.name]));
+
+      // Small delay to ensure browser handles each download
+      await new Promise(r => setTimeout(r, 500));
+    }
+  };
 
   const theme = isDark ? styles.dark : styles.light;
 
@@ -285,6 +308,7 @@ export default function Home() {
     setProgress(0);
     setStage("");
     setError(null);
+    setDownloadedAll(false);
     setDownloadedFiles(new Set());
   };
 
@@ -711,8 +735,24 @@ export default function Home() {
             )}
 
             <div style={{ display: "flex", flexWrap: "wrap", gap: 12, justifyContent: "center", marginBottom: 24 }}>
+              {/* Client-side Download All */}
+              {!isMobile && (
+                downloadedAll ? (
+                  <button disabled style={{ ...btn, opacity: 0.5, cursor: "default", background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)" }}><CheckCircle2 size={18} /> All Saved</button>
+                ) : (
+                  <button onClick={handleDownloadAll} style={btn}><Package size={18} /> Download All</button>
+                )
+              )}
+
               <button onClick={handleReset} style={btnSecondary}><RefreshCcw size={18} /> Process Another</button>
             </div>
+
+            {downloadedAll && (
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 18px", borderRadius: 100, background: "rgba(74,222,128,0.1)", border: "1px solid rgba(74,222,128,0.2)", marginBottom: 24 }}>
+                <CheckCircle2 size={16} color="#4ade80" />
+                <span style={{ fontSize: 14, color: "#4ade80", fontWeight: 500 }}>All formats downloaded!</span>
+              </div>
+            )}
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, textAlign: "left" }}>
               {resultsData.files.map((file: any) => {
@@ -727,7 +767,9 @@ export default function Home() {
                         <p style={{ fontSize: 12, color: theme.textMuted }}>{info.desc}</p>
                       </div>
                     </div>
-                    {isFileDownloaded ? (
+                    {downloadedAll ? (
+                      <button disabled style={{ ...btnSecondary, width: "100%", fontSize: 14, padding: "10px 16px", opacity: 0.7, cursor: "default", borderColor: "#4ade80" }}><CheckCircle2 size={14} color="#4ade80" /> Saved</button>
+                    ) : isFileDownloaded ? (
                       <button disabled style={{ ...btnSecondary, width: "100%", fontSize: 14, padding: "10px 16px", opacity: 0.7, cursor: "default", borderColor: "#4ade80" }}><CheckCircle2 size={14} color="#4ade80" /> Downloaded</button>
                     ) : (
                       <a
