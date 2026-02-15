@@ -1,56 +1,59 @@
-# RACIO - Optimized Dockerfile for Render (Free Tier)
-# Use Alpine Linux for minimal footprint (~10x smaller than Debian)
+# RACIO - Production Dockerfile
+# Optimized for Render (Free Tier) using Static FFmpeg
 
 # --- Stage 1: Dependencies ---
-FROM node:20-alpine AS deps
-# libc6-compat needed for some Next.js dependencies on Alpine
-RUN apk add --no-cache libc6-compat
+FROM node:20-slim AS deps
 WORKDIR /app
 COPY package.json package-lock.json* ./
-RUN npm ci
+# Use npm install to avoid strict lockfile enforcement across OS
+RUN npm install
 
 # --- Stage 2: Builder ---
-FROM node:20-alpine AS builder
+FROM node:20-slim AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-
-# Disable telemetry during build
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 
 # --- Stage 3: Runner ---
-FROM node:20-alpine AS runner
+FROM node:20-slim AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 
-# Install system dependencies (FFmpeg, Python for yt-dlp)
-# Alpine's ffmpeg is lightweight and dependency-free
-RUN apk add --no-cache \
-    ffmpeg \
+# Install minimal runtime dependencies (Python for yt-dlp)
+# We avoid 'ffmpeg' package to prevent heavy X11 libs
+RUN apt-get update && apt-get install -y \
     python3 \
-    py3-pip \
+    python3-pip \
+    python3-venv \
     curl \
-    ca-certificates
+    xz-utils \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install yt-dlp in a virtual environment
+# Install yt-dlp in venv
 RUN python3 -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 RUN pip install yt-dlp
 
-# Copy built application from builder stage
+# Download Static FFmpeg (John Van Sickle build - Industry Standard)
+# This avoids 500MB+ of apt dependencies
+RUN curl -O https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz \
+    && tar xvf ffmpeg-release-amd64-static.tar.xz \
+    && mv ffmpeg-*-amd64-static/ffmpeg /usr/local/bin/ \
+    && mv ffmpeg-*-amd64-static/ffprobe /usr/local/bin/ \
+    && rm -rf ffmpeg*
+
+# Copy App
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/.next/standalone ./
 
-# Verify installations
-RUN ffmpeg -version && yt-dlp --version
+# Verify
+RUN ffmpeg -version && yt-dlp --version && node -v
 
-# Expose port 3000
 EXPOSE 3000
-
-# Start application
 CMD ["node", "server.js"]
