@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { writeFile, mkdir, stat, copyFile } from "fs/promises";
-import { createWriteStream, existsSync } from "fs";
+import { existsSync } from "fs";
 import path from "path";
 import os from "os";
 import { v4 as uuidv4 } from "uuid";
 import ffmpeg from "fluent-ffmpeg";
-import archiver from "archiver";
 import { cleanupOldSessions } from "@/lib/cleanup";
 import { processingQueue } from "@/lib/queue";
 
@@ -339,26 +338,9 @@ export async function POST(req: NextRequest) {
             results.push({ name: t.name, path: outputPath });
         }
 
-        // Create ZIP
-        const zipPath = path.join(tempDir, "racio-bundle.zip");
-        const output = createWriteStream(zipPath);
-        const archive = archiver("zip", { zlib: { level: 1 } }); // Fast compression
-
-        await new Promise<void>((resolve, reject) => {
-            output.on("close", () => resolve());
-            archive.on("error", reject);
-            archive.pipe(output);
-            results.forEach((r) => {
-                archive.file(r.path, { name: `${r.name}${fileExt}` });
-            });
-            archive.finalize();
-        });
-
-
-
         // 📊 Usage Analytics Log (visible in Railway logs)
         const analyticsLog = {
-            event: "VIDEO_PROCESSED",
+            event: isImage ? "IMAGE_PROCESSED" : "VIDEO_PROCESSED",
             timestamp: new Date().toISOString(),
             sessionId,
             source: sourceType,
@@ -374,12 +356,10 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json({
             sessionId,
-            zip: `/api/download?id=${sessionId}&file=racio-bundle.zip`,
             files: results.map((r) => ({
                 name: r.name,
                 url: `/api/download?id=${sessionId}&file=${path.basename(r.path)}`,
             })),
-
         });
     } catch (error: any) {
         // Release queue slot on error

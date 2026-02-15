@@ -20,7 +20,7 @@ interface JobStatus {
     progress?: number;
     message?: string;
     results?: { format: string; name: string; url: string }[];
-    zip?: string;
+
     error?: string;
     createdAt?: string;
     completedAt?: string;
@@ -49,7 +49,7 @@ async function checkSessionStatus(sessionId: string): Promise<JobStatus | null> 
         // Check for output files (not input)
         const outputFiles = files.filter(f =>
             !f.startsWith("input") &&
-            (f.endsWith(".jpg") || f.endsWith(".png") || f.endsWith(".mp4") || f.endsWith(".zip"))
+            (f.endsWith(".jpg") || f.endsWith(".png") || f.endsWith(".mp4"))
         );
 
         if (outputFiles.length === 0) {
@@ -64,7 +64,6 @@ async function checkSessionStatus(sessionId: string): Promise<JobStatus | null> 
 
         // Has output files - complete
         const results = outputFiles
-            .filter(f => !f.endsWith(".zip"))
             .map(f => {
                 const name = path.basename(f, path.extname(f));
                 const format = name.includes("9-16") ? "9:16" :
@@ -81,15 +80,12 @@ async function checkSessionStatus(sessionId: string): Promise<JobStatus | null> 
                 };
             });
 
-        const hasZip = outputFiles.some(f => f.endsWith(".zip"));
-
         return {
             id: sessionId,
             state: "complete",
             progress: 100,
             message: "Processing complete!",
             results,
-            zip: hasZip ? `/api/download?id=${sessionId}&file=racio-bundle.zip` : undefined,
         };
 
     } catch (e: any) {

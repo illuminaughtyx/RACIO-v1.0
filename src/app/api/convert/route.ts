@@ -4,7 +4,6 @@ import { createWriteStream, existsSync } from "fs";
 import path from "path";
 import os from "os";
 import { v4 as uuidv4 } from "uuid";
-import archiver from "archiver";
 import { spawn } from "child_process";
 import { processingQueue } from "@/lib/queue";
 import { cleanupOldSessions } from "@/lib/cleanup";
@@ -268,47 +267,7 @@ async function validateFile(filePath: string): Promise<boolean> {
     }
 }
 
-// Create ZIP archive with validated files
-async function createZipArchive(files: { name: string; path: string }[], outputPath: string): Promise<boolean> {
-    return new Promise(async (resolve, reject) => {
-        // First validate all files exist and are non-empty
-        const validFiles: { name: string; path: string }[] = [];
 
-        for (const file of files) {
-            const isValid = await validateFile(file.path);
-            if (isValid) {
-                validFiles.push(file);
-            } else {
-                console.warn(`[Convert] Skipping invalid file: ${file.path}`);
-            }
-        }
-
-        if (validFiles.length === 0) {
-            reject(new Error("No valid files to include in ZIP"));
-            return;
-        }
-
-        const output = createWriteStream(outputPath);
-        const archive = archiver("zip", { zlib: { level: 1 } }); // Fast compression
-
-        output.on("close", () => {
-            console.log(`[Convert] ZIP created: ${archive.pointer()} bytes, ${validFiles.length} files`);
-            resolve(true);
-        });
-
-        archive.on("error", (err) => {
-            reject(err);
-        });
-
-        archive.pipe(output);
-
-        for (const file of validFiles) {
-            archive.file(file.path, { name: `${file.name}${path.extname(file.path)}` });
-        }
-
-        await archive.finalize();
-    });
-}
 
 // ============================================================================
 // MAIN API HANDLER
@@ -478,25 +437,7 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Create ZIP bundle if more than one file
-        let zipUrl: string | undefined;
-        if (results.length > 1) {
-            const zipPath = path.join(tempDir, "racio-bundle.zip");
-            try {
-                await createZipArchive(
-                    results.map(r => ({ name: r.name, path: r.path })),
-                    zipPath
-                );
 
-                const zipValid = await validateFile(zipPath);
-                if (zipValid) {
-                    zipUrl = `/api/download?id=${sessionId}&file=racio-bundle.zip`;
-                }
-            } catch (e: any) {
-                console.warn(`[Convert] ${requestId} - ZIP creation failed:`, e.message);
-                // Continue without ZIP
-            }
-        }
 
         // Calculate processing time
         const processingTime = Date.now() - startTime;
@@ -527,7 +468,6 @@ export async function POST(req: NextRequest) {
                 name: r.name,
                 url: r.url,
             })),
-            zip: zipUrl,
             errors: errors.length > 0 ? errors : undefined,
         });
 
