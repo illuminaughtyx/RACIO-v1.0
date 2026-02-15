@@ -82,6 +82,19 @@ docker run -d \
 
 For Vercel deployment, you'll need an external processing service since Vercel functions have time/size limits.
 
+### Option 4: Render (Free Docker Tier)
+
+1. Create a [Render.com](https://render.com) account
+2. Click **New +** -> **Web Service**
+3. Connect your GitHub repository
+4. Wait for Render to detect the `Dockerfile`
+5. Set Environment Variables:
+   - `NODE_ENV`: `production`
+   - `NEXT_PUBLIC_URL`: `https://your-service-name.onrender.com`
+6. Click **Create Web Service**
+
+**Note:** The free tier spins down after 15 minutes of inactivity. For continuous uptime, upgrade to the Starter plan ($7/mo).
+
 ---
 
 ## Environment Variables

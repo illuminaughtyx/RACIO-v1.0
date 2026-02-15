@@ -4,49 +4,44 @@
 FROM node:20-slim
 
 # Install system dependencies
+# ffmpeg: required for image/video processing
+# python3: required for yt-dlp
+# ca-certificates: updates certs for https downloads
 RUN apt-get update && apt-get install -y \
     ffmpeg \
     python3 \
     python3-pip \
+    python3-venv \
+    ca-certificates \
     curl \
-    && pip3 install --break-system-packages yt-dlp \
-    && rm -rf /var/lib/apt/lists/* \
-    && ln -sf /usr/bin/python3 /usr/bin/python
+    && rm -rf /var/lib/apt/lists/*
+
+# Install yt-dlp via python virtual environment
+# We create a venv to avoid externally managed environment errors
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+RUN pip install yt-dlp
 
 # Verify installations
-RUN ffmpeg -version && ffprobe -version && yt-dlp --version
+RUN ffmpeg -version && yt-dlp --version
 
+# Application Setup
 WORKDIR /app
 
-# Copy package files first for better caching
-COPY package*.json ./
+# Copy dependency definitions
+COPY package.json package-lock.json* ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install dependencies (clean install for production)
+RUN npm ci
 
-# Copy source files
+# Copy application code
 COPY . .
 
-# Build the Next.js app
+# Build the Next.js application
 RUN npm run build
-
-# Create temp directory for processing
-RUN mkdir -p /tmp/racio && chmod 777 /tmp/racio
-
-# Set environment variables
-ENV NODE_ENV=production
-ENV PORT=3000
-ENV FFMPEG_CONCURRENCY=2
-ENV QUEUE_PROCESSING_CONCURRENCY=2
-ENV QUEUE_DOWNLOAD_CONCURRENCY=2
 
 # Expose port
 EXPOSE 3000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD curl -f http://localhost:3000/api/queue-status || exit 1
-
-# Start the app
+# Start server
 CMD ["npm", "start"]
-
