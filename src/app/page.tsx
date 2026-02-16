@@ -20,7 +20,7 @@ const styles = {
     border: "rgba(255,255,255,0.1)",
     text: "#ffffff",
     textSecondary: "rgba(255,255,255,0.6)",
-    textMuted: "rgba(255,255,255,0.4)",
+    textMuted: "rgba(255,255,255,0.55)",
   },
   light: {
     bg: "#fafafa",
@@ -165,6 +165,8 @@ export default function Home() {
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
+    transition: "all 0.2s ease",
+    fontSize: 15,
   };
 
   const btnSecondary: CSSProperties = {
@@ -472,12 +474,15 @@ export default function Home() {
             </div>
 
             <h1 style={{ fontSize: "clamp(40px, 8vw, 72px)", fontWeight: 700, letterSpacing: -2, marginBottom: 24, lineHeight: 1 }} className="animate-fade-in-up delay-100">
-              One Image.<br />
+              One File.<br />
               <span className="text-gradient">Every Ratio.</span>
             </h1>
 
-            <p style={{ fontSize: 18, color: theme.textSecondary, maxWidth: 480, margin: "0 auto 24px" }} className="animate-fade-in-up delay-200">
-              Convert any image into every platform-ready format in &lt;1s.
+            <p style={{ fontSize: 18, color: theme.textSecondary, maxWidth: 520, margin: "0 auto 12px" }} className="animate-fade-in-up delay-200">
+              Drop an image or video. Get every social format back instantly.
+            </p>
+            <p style={{ fontSize: 14, color: theme.textMuted, maxWidth: 420, margin: "0 auto 24px" }} className="animate-fade-in-up delay-250">
+              Instagram Reels • YouTube Shorts • TikTok • Feed Posts • Stories
             </p>
 
             {/* Trust Badges */}
@@ -516,9 +521,26 @@ export default function Home() {
                 onDrop={(e) => { e.preventDefault(); setIsDragOver(false); const file = e.dataTransfer.files[0]; if (file && (file.type.startsWith("image/") || file.type.startsWith("video/"))) handleFileSelect(file); }}
                 onClick={() => document.getElementById("file-input")?.click()}
               >
-                <Upload size={40} color={isDragOver ? "#8b5cf6" : theme.textMuted} style={{ margin: "0 auto 16px", transition: "color 0.3s" }} />
-                <p style={{ fontWeight: 600, marginBottom: 4 }}>{selectedFile ? selectedFile.name : "Drop your image or video here"}</p>
-                <p style={{ fontSize: 14, color: theme.textMuted }}>{selectedFile ? formatSize(selectedFile.size) : "or click to browse • JPG, PNG, MP4 up to 50MB"}</p>
+                {selectedFile ? (
+                  <div style={{ display: "flex", alignItems: "center", gap: 16, textAlign: "left" }}>
+                    <div style={{ width: 56, height: 56, borderRadius: 12, background: "linear-gradient(135deg, rgba(139,92,246,0.2), rgba(217,70,239,0.2))", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      {selectedFile.type.startsWith("video/") ? <Film size={24} color="#a855f7" /> : <ImageIcon size={24} color="#a855f7" />}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ fontWeight: 600, marginBottom: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{selectedFile.name}</p>
+                      <p style={{ fontSize: 13, color: theme.textMuted }}>{formatSize(selectedFile.size)} • {selectedFile.type.startsWith("video/") ? "Video" : "Image"} • Ready to convert</p>
+                    </div>
+                    <button onClick={(e) => { e.stopPropagation(); setSelectedFile(null); }} style={{ background: "none", border: "none", color: theme.textMuted, cursor: "pointer", padding: 4 }}><X size={18} /></button>
+                  </div>
+                ) : (
+                  <>
+                    <div style={{ width: 64, height: 64, borderRadius: 16, background: isDragOver ? "rgba(139,92,246,0.2)" : "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", transition: "all 0.3s" }}>
+                      <Upload size={28} color={isDragOver ? "#8b5cf6" : theme.textMuted} style={{ transition: "color 0.3s" }} />
+                    </div>
+                    <p style={{ fontWeight: 600, marginBottom: 4 }}>Drop your image or video here</p>
+                    <p style={{ fontSize: 14, color: theme.textMuted }}>or click to browse • JPG, PNG, MP4 up to 50MB</p>
+                  </>
+                )}
                 <input type="file" id="file-input" accept="image/*,video/*" style={{ display: "none" }} onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0])} />
               </div>
 
@@ -693,40 +715,53 @@ export default function Home() {
         )}
 
         {step === "processing" && (
-          <div style={{ padding: "80px 0" }}>
-            <div style={{ position: "relative", width: 80, height: 80, margin: "0 auto 32px" }}>
-              <div style={{ position: "absolute", inset: 0, background: "rgba(139,92,246,0.3)", borderRadius: "50%", filter: "blur(20px)" }} className="animate-pulse" />
-              <div style={{ ...card, width: 80, height: 80, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
-                <Loader2 size={36} color="#a855f7" className="animate-spin" />
+          <div style={{ padding: "80px 0" }} className="animate-fade-in-up">
+            {/* Animated orb */}
+            <div style={{ position: "relative", width: 96, height: 96, margin: "0 auto 36px" }}>
+              <div style={{ position: "absolute", inset: -8, background: "linear-gradient(135deg, rgba(139,92,246,0.4), rgba(217,70,239,0.3))", borderRadius: "50%", filter: "blur(24px)" }} className="animate-pulse" />
+              <div style={{ position: "absolute", inset: -16, background: "rgba(139,92,246,0.1)", borderRadius: "50%", filter: "blur(40px)" }} className="glow-pulse" />
+              <div style={{ ...card, width: 96, height: 96, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", position: "relative", borderColor: "rgba(139,92,246,0.3)" }}>
+                <Loader2 size={40} color="#a855f7" className="animate-spin" />
               </div>
             </div>
-            <h2 style={{ fontSize: 28, fontWeight: 700, marginBottom: 8 }}>{processingMessage}</h2>
-            <p style={{ color: theme.textMuted }}>{stage}</p>
 
-            {/* Queue Status Indicator */}
+            <h2 style={{ fontSize: 28, fontWeight: 700, marginBottom: 8 }}>{processingMessage}</h2>
+            <p style={{ color: theme.textMuted, fontSize: 15, marginBottom: 8 }}>{stage}</p>
+
+            {/* Step indicator pills */}
+            <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 16, marginBottom: 8 }}>
+              {["Analyze", "Convert", "Optimize"].map((s, i) => {
+                const stepProgress = progress < 30 ? 0 : progress < 65 ? 1 : 2;
+                return (
+                  <div key={s} style={{
+                    padding: "5px 14px", borderRadius: 100, fontSize: 11, fontWeight: 600, letterSpacing: 0.5, textTransform: "uppercase",
+                    background: i <= stepProgress ? "rgba(139,92,246,0.2)" : "rgba(255,255,255,0.04)",
+                    color: i <= stepProgress ? "#a78bfa" : theme.textMuted,
+                    border: `1px solid ${i <= stepProgress ? "rgba(139,92,246,0.3)" : "transparent"}`,
+                    transition: "all 0.4s ease"
+                  }}>
+                    {i < stepProgress ? <span>✓ </span> : null}{s}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Queue Status */}
             {queueStatus && queueStatus.queued > 0 && (
-              <div style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 8,
-                marginTop: 16,
-                padding: "8px 16px",
-                borderRadius: 100,
-                background: "rgba(251,191,36,0.1)",
-                border: "1px solid rgba(251,191,36,0.2)",
-              }}>
-                <span style={{ color: "#fbbf24", fontSize: 13 }}>
-                  ⏳ {queueStatus.queued} {queueStatus.queued === 1 ? "user" : "users"} ahead • ~{Math.ceil(queueStatus.queued * 15 / 2)}s wait
-                </span>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 16, padding: "8px 16px", borderRadius: 100, background: "rgba(251,191,36,0.1)", border: "1px solid rgba(251,191,36,0.2)" }}>
+                <span style={{ color: "#fbbf24", fontSize: 13 }}>⏳ {queueStatus.queued} {queueStatus.queued === 1 ? "user" : "users"} ahead</span>
               </div>
             )}
 
+            {/* Progress bar */}
             {progress > 0 && (
-              <div style={{ maxWidth: 300, margin: "32px auto 0" }}>
-                <div style={{ height: 8, background: theme.border, borderRadius: 100, overflow: "hidden" }}>
-                  <div style={{ height: "100%", width: `${progress}%`, background: "linear-gradient(90deg, #8b5cf6, #d946ef)", borderRadius: 100, transition: "width 0.5s" }} />
+              <div style={{ maxWidth: 340, margin: "28px auto 0" }}>
+                <div style={{ height: 6, background: theme.border, borderRadius: 100, overflow: "hidden", position: "relative" }}>
+                  <div style={{ height: "100%", width: `${progress}%`, background: "linear-gradient(90deg, #8b5cf6, #c084fc, #d946ef)", borderRadius: 100, transition: "width 0.6s cubic-bezier(0.4, 0, 0.2, 1)", position: "relative", overflow: "hidden" }}>
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)", animation: "shimmer 2s infinite" }} />
+                  </div>
                 </div>
-                <p style={{ fontSize: 14, color: theme.textMuted, marginTop: 12 }}>{progress}%</p>
+                <p style={{ fontSize: 13, color: theme.textMuted, marginTop: 10 }}>{progress}% complete</p>
               </div>
             )}
           </div>
@@ -774,16 +809,14 @@ export default function Home() {
             )}
 
             <div style={{ display: "flex", flexWrap: "wrap", gap: 12, justifyContent: "center", marginBottom: 24 }}>
-              {/* Client-side Download All */}
-              {!isMobile && (
-                downloadedAll ? (
-                  <button disabled style={{ ...btn, opacity: 0.5, cursor: "default", background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)" }}><CheckCircle2 size={18} /> All Saved</button>
-                ) : (
-                  <button onClick={handleDownloadAll} style={btn}><Package size={18} /> Download All</button>
-                )
+              {/* Client-side Download All - DOMINANT CTA */}
+              {downloadedAll ? (
+                <button disabled style={{ ...btn, opacity: 0.6, cursor: "default", background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)", padding: "16px 36px", fontSize: 16 }}><CheckCircle2 size={20} /> All Saved!</button>
+              ) : (
+                <button onClick={handleDownloadAll} style={{ ...btn, padding: "16px 36px", fontSize: 16, boxShadow: "0 8px 32px -4px rgba(139,92,246,0.4)" }} className="shimmer glow-pulse"><Package size={20} /> Download All Formats</button>
               )}
 
-              <button onClick={handleReset} style={btnSecondary}><RefreshCcw size={18} /> Process Another</button>
+              <button onClick={handleReset} style={{ ...btnSecondary, fontSize: 14 }}><RefreshCcw size={16} /> Process Another</button>
             </div>
 
             {downloadedAll && (
@@ -831,21 +864,24 @@ export default function Home() {
       {/* Features */}
       {step === "upload" && (
         <section id="features" style={{ position: "relative", zIndex: 10, maxWidth: 1100, margin: "0 auto", padding: "80px 24px", borderTop: `1px solid ${theme.border}` }}>
-          <h2 style={{ fontSize: 32, fontWeight: 700, textAlign: "center", marginBottom: 16 }}>Why creators love <span className="text-gradient">RACIO</span></h2>
-          <p style={{ textAlign: "center", color: theme.textMuted, marginBottom: 48 }}>One image in, every format out.</p>
+          <h2 style={{ fontSize: 32, fontWeight: 700, textAlign: "center", marginBottom: 12 }}>Why creators love <span className="text-gradient">RACIO</span></h2>
+          <p style={{ textAlign: "center", color: theme.textMuted, marginBottom: 48, maxWidth: 500, margin: "0 auto 48px" }}>One file in, every platform-ready format out. No login, no hassle.</p>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 24 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 20 }}>
             {[
-              { icon: Zap, title: "Lightning Fast", desc: "Process in seconds, not minutes.", color: "#a78bfa" },
-              { icon: Shield, title: "Privacy First", desc: "Files deleted after 1 hour.", color: "#60a5fa" },
-              { icon: Clock, title: "Save Hours", desc: "All formats in one click.", color: "#f472b6" },
+              { icon: Zap, title: "Lightning Fast", desc: "Images convert in under 1 second. Videos in under 30s. No waiting.", color: "#a78bfa" },
+              { icon: Shield, title: "Privacy First", desc: "Your files are auto-deleted after 1 hour. We never store or share them.", color: "#60a5fa" },
+              { icon: Clock, title: "Save Hours Weekly", desc: "Stop manually resizing for each platform. Get all formats in one click.", color: "#f472b6" },
+              { icon: Smartphone, title: "Every Platform", desc: "TikTok, Reels, Shorts, Feed, Stories — all ratios covered automatically.", color: "#34d399" },
+              { icon: Sparkles, title: "Pro Quality", desc: "1080p HD output with Pro. No quality loss, no compression artifacts.", color: "#fbbf24" },
+              { icon: Download, title: "Batch Download", desc: "Download all formats at once. No zipping, no waiting for email links.", color: "#f87171" },
             ].map(({ icon: Icon, title, desc, color }) => (
-              <div key={title} style={{ ...card, padding: 28 }}>
-                <div style={{ width: 48, height: 48, background: `${color}20`, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
-                  <Icon size={24} color={color} />
+              <div key={title} style={{ ...card, padding: 24 }} className="card-hover">
+                <div style={{ width: 44, height: 44, background: `${color}15`, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 14 }}>
+                  <Icon size={22} color={color} />
                 </div>
-                <h3 style={{ fontWeight: 700, marginBottom: 4 }}>{title}</h3>
-                <p style={{ fontSize: 14, color: theme.textMuted }}>{desc}</p>
+                <h3 style={{ fontWeight: 700, marginBottom: 6, fontSize: 16 }}>{title}</h3>
+                <p style={{ fontSize: 13, color: theme.textMuted, lineHeight: 1.5 }}>{desc}</p>
               </div>
             ))}
           </div>
@@ -916,21 +952,27 @@ export default function Home() {
             {isLifetime ? (
               <button disabled style={{ ...btnSecondary, width: "100%", borderColor: "#fbbf24", color: "#fbbf24", cursor: "default" }}>✓ Active Forever</button>
             ) : (
-              <a href={PAYMENT_LINKS.LIFETIME} style={{ ...btnSecondary, width: "100%", textDecoration: "none" }}>Buy Lifetime</a>
+              <a href={PAYMENT_LINKS.LIFETIME} style={{ ...btn, width: "100%", textDecoration: "none", background: "linear-gradient(135deg, #f59e0b, #ea580c)", boxShadow: "0 8px 24px -4px rgba(245,158,11,0.3)" }} className="shimmer">🔥 Buy Lifetime</a>
             )}
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer style={{ position: "relative", zIndex: 10, maxWidth: 1100, margin: "0 auto", padding: "32px 24px", borderTop: `1px solid ${theme.border}`, display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontFamily: "var(--font-mono), 'JetBrains Mono', monospace", fontSize: 14, fontWeight: 700, color: theme.text, letterSpacing: 2 }}>[RACIO]</span>
+      <footer style={{ position: "relative", zIndex: 10, maxWidth: 1100, margin: "0 auto", padding: "40px 24px 32px", borderTop: `1px solid ${theme.border}` }}>
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 16, marginBottom: 20 }}>
+          <div>
+            <span style={{ fontFamily: "var(--font-mono), 'JetBrains Mono', monospace", fontSize: 16, fontWeight: 700, color: theme.text, letterSpacing: 3 }}>[RACIO]</span>
+            <p style={{ fontSize: 12, color: theme.textMuted, marginTop: 4 }}>The ratio engine for creators.</p>
+          </div>
+          <div style={{ display: "flex", gap: 20 }}>
+            <Link href="/privacy" style={{ fontSize: 13, color: theme.textMuted, textDecoration: "none" }}>Privacy</Link>
+            <Link href="/terms" style={{ fontSize: 13, color: theme.textMuted, textDecoration: "none" }}>Terms</Link>
+            <a href="mailto:racioapp@gmail.com" style={{ fontSize: 13, color: theme.textMuted, textDecoration: "none" }}>Contact</a>
+          </div>
         </div>
-        <div style={{ display: "flex", gap: 24 }}>
-          <Link href="/privacy" style={{ fontSize: 14, color: theme.textMuted, textDecoration: "none" }}>Privacy</Link>
-          <Link href="/terms" style={{ fontSize: 14, color: theme.textMuted, textDecoration: "none" }}>Terms</Link>
-          <a href="mailto:racioapp@gmail.com" style={{ fontSize: 14, color: theme.textMuted, textDecoration: "none" }}>Contact</a>
+        <div style={{ textAlign: "center", fontSize: 11, color: theme.textMuted, opacity: 0.7 }}>
+          Made with precision • © {new Date().getFullYear()} RACIO
         </div>
       </footer>
     </main>

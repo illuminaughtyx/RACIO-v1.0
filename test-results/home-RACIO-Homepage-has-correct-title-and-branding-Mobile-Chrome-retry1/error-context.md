@@ -1,0 +1,166 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e5] [cursor=pointer]: "[RACIO]"
+      - generic [ref=e6]:
+        - link "Features" [ref=e7] [cursor=pointer]:
+          - /url: "#features"
+        - link "Pricing" [ref=e8] [cursor=pointer]:
+          - /url: "#pricing"
+        - button [ref=e9] [cursor=pointer]:
+          - img [ref=e10]
+    - generic [ref=e16]:
+      - generic [ref=e19]: Image-First Ratio Engine
+      - heading "One Image. Every Ratio." [level=1] [ref=e20]:
+        - text: One Image.
+        - text: Every Ratio.
+      - paragraph [ref=e21]: Convert any image into every platform-ready format in <1s.
+      - generic [ref=e22]:
+        - generic [ref=e23]:
+          - img [ref=e24]
+          - text: No login required
+        - generic [ref=e26]:
+          - img [ref=e27]
+          - text: Free tier available
+        - generic [ref=e29]:
+          - img [ref=e30]
+          - text: Works with any image
+        - generic [ref=e32]:
+          - img [ref=e33]
+          - text: 1080p for Pro
+      - generic [ref=e36]:
+        - generic [ref=e37] [cursor=pointer]:
+          - img [ref=e38]
+          - paragraph [ref=e41]: Drop your image or video here
+          - paragraph [ref=e42]: or click to browse • JPG, PNG, MP4 up to 50MB
+        - generic [ref=e45]: or paste URL
+        - generic [ref=e47]:
+          - generic [ref=e48]:
+            - img [ref=e49]
+            - textbox "https://x.com/username/status/..." [ref=e52]
+          - button "Go" [disabled] [ref=e53] [cursor=pointer]:
+            - img [ref=e54]
+            - text: Go
+        - button "Try with sample video" [ref=e58] [cursor=pointer]:
+          - img [ref=e59]
+          - text: Try with sample video
+        - generic [ref=e61]:
+          - paragraph [ref=e62]: Output Formats
+          - generic [ref=e63]:
+            - button "9:16" [ref=e64] [cursor=pointer]
+            - button "1:1" [ref=e65] [cursor=pointer]
+            - button "16:9" [ref=e66] [cursor=pointer]
+            - button "4:5" [ref=e67] [cursor=pointer]:
+              - text: 4:5
+              - img [ref=e68]
+            - button "2:3" [ref=e70] [cursor=pointer]:
+              - text: 2:3
+              - img [ref=e71]
+            - button "21:9" [ref=e73] [cursor=pointer]:
+              - text: 21:9
+              - img [ref=e74]
+          - paragraph [ref=e76]:
+            - img [ref=e77]
+            - text: "Pro: 1080p HD + custom ratios (4:5, 2:3, 21:9)"
+        - paragraph [ref=e79]: Trusted by 500+ creators
+    - generic [ref=e80]:
+      - heading "Why creators love RACIO" [level=2] [ref=e81]
+      - paragraph [ref=e82]: One image in, every format out.
+      - generic [ref=e83]:
+        - generic [ref=e84]:
+          - img [ref=e86]
+          - heading "Lightning Fast" [level=3] [ref=e88]
+          - paragraph [ref=e89]: Process in seconds, not minutes.
+        - generic [ref=e90]:
+          - img [ref=e92]
+          - heading "Privacy First" [level=3] [ref=e94]
+          - paragraph [ref=e95]: Files deleted after 1 hour.
+        - generic [ref=e96]:
+          - img [ref=e98]
+          - heading "Save Hours" [level=3] [ref=e101]
+          - paragraph [ref=e102]: All formats in one click.
+    - generic [ref=e103]:
+      - heading "Simple Pricing" [level=2] [ref=e104]
+      - paragraph [ref=e105]: Start free. Upgrade when you need more.
+      - generic [ref=e106]:
+        - generic [ref=e107]:
+          - img [ref=e108]
+          - heading "Starter" [level=3] [ref=e110]
+          - paragraph [ref=e111]: $0 /forever
+          - list [ref=e112]:
+            - listitem [ref=e113]:
+              - img [ref=e114]
+              - text: 5 conversions/day
+            - listitem [ref=e116]:
+              - img [ref=e117]
+              - text: Standard quality
+            - listitem [ref=e119]:
+              - img [ref=e120]
+              - text: Watermarked
+            - listitem [ref=e122]:
+              - img [ref=e123]
+              - text: 10MB max
+          - button "Current Plan" [disabled] [ref=e125]
+        - generic [ref=e126]:
+          - generic [ref=e127]: Popular
+          - img [ref=e128]
+          - heading "Pro" [level=3] [ref=e130]
+          - paragraph [ref=e131]: $7 /mo
+          - list [ref=e132]:
+            - listitem [ref=e133]:
+              - img [ref=e134]
+              - text: ✨ No watermark
+            - listitem [ref=e136]:
+              - img [ref=e137]
+              - text: 🎬 1080p HD quality
+            - listitem [ref=e139]:
+              - img [ref=e140]
+              - text: Custom ratios (4:5, 2:3...)
+            - listitem [ref=e142]:
+              - img [ref=e143]
+              - text: Unlimited conversions
+            - listitem [ref=e145]:
+              - img [ref=e146]
+              - text: X/Twitter downloader
+          - link "Get Pro" [ref=e148] [cursor=pointer]:
+            - /url: https://racioapp.lemonsqueezy.com/checkout/buy/1b322848-8f95-455f-9570-7deb748c4358
+        - generic [ref=e149]:
+          - generic [ref=e150]: 🔥 First 50 Only
+          - img [ref=e151]
+          - heading "Lifetime" [level=3] [ref=e153]
+          - paragraph [ref=e154]: $79 /once
+          - paragraph [ref=e155]: Early bird • Then $149
+          - list [ref=e156]:
+            - listitem [ref=e157]:
+              - img [ref=e158]
+              - text: ✨ No watermark ever
+            - listitem [ref=e160]:
+              - img [ref=e161]
+              - text: 🎬 1080p HD quality
+            - listitem [ref=e163]:
+              - img [ref=e164]
+              - text: All custom ratios
+            - listitem [ref=e166]:
+              - img [ref=e167]
+              - text: Everything in Pro
+            - listitem [ref=e169]:
+              - img [ref=e170]
+              - text: Future updates
+          - link "Buy Lifetime" [ref=e172] [cursor=pointer]:
+            - /url: https://racioapp.lemonsqueezy.com/checkout/buy/8832208c-763f-4448-8f76-edc23be51534
+    - generic [ref=e173]:
+      - generic [ref=e175]: "[RACIO]"
+      - generic [ref=e176]:
+        - link "Privacy" [ref=e177] [cursor=pointer]:
+          - /url: /privacy
+        - link "Terms" [ref=e178] [cursor=pointer]:
+          - /url: /terms
+        - link "Contact" [ref=e179] [cursor=pointer]:
+          - /url: mailto:racioapp@gmail.com
+  - button "Open Next.js Dev Tools" [ref=e185] [cursor=pointer]:
+    - img [ref=e186]
+  - alert [ref=e189]
+```
