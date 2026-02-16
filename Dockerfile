@@ -26,13 +26,14 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 
-# Install minimal runtime dependencies (Python for yt-dlp, fonts for FFmpeg watermark)
+# Install minimal runtime dependencies (Python, FFmpeg, fonts)
 RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
     python3-venv \
     curl \
     xz-utils \
+    ffmpeg \
     fontconfig \
     fonts-dejavu-core \
     && rm -rf /var/lib/apt/lists/*
@@ -41,14 +42,6 @@ RUN apt-get update && apt-get install -y \
 RUN python3 -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 RUN pip install yt-dlp
-
-# Download Static FFmpeg (John Van Sickle build - Industry Standard)
-# This avoids 500MB+ of apt dependencies
-RUN curl -O https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz \
-    && tar xvf ffmpeg-release-amd64-static.tar.xz \
-    && mv ffmpeg-*-amd64-static/ffmpeg /usr/local/bin/ \
-    && mv ffmpeg-*-amd64-static/ffprobe /usr/local/bin/ \
-    && rm -rf ffmpeg*
 
 # Copy App
 COPY --from=builder /app/public ./public

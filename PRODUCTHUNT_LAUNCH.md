@@ -1,121 +1,322 @@
-# RACIO - Product Hunt Launch Materials
+# RACIO — Product Hunt Launch Plan
+## Target: #1 Product of the Day 🏆
 
-## Product Name
-RACIO - The Ratio Engine
+---
 
-## Tagline (60 characters max)
-Paste one video, get all social formats instantly ⚡
+## Pre-Launch Checklist (Do This Week)
 
-## Description
-Stop manually resizing videos for every platform. RACIO converts any video to all social media formats in seconds.
+### Account Setup
+- [ ] Create/verify Product Hunt maker account
+- [ ] Upload professional avatar
+- [ ] Fill out complete profile (bio, links, Twitter)
+- [ ] Follow 20+ relevant makers in creator tools space
+- [ ] Upvote 15+ products over next 5 days (build karma)
+- [ ] Leave 10+ thoughtful comments on other launches (quality > quantity)
 
-**How it works:**
-1. Paste your video (or Twitter/X URL)
-2. We auto-generate 9:16, 1:1, and 16:9 versions
-3. Download all formats with one click
+### Product Page Assets
+- [ ] Hero image (1270×760px) — main UI showing conversion in action
+- [ ] Screenshot 1 — Upload/drop zone with "One File. Every Ratio." hero
+- [ ] Screenshot 2 — Format selector with all 6 ratios visible
+- [ ] Screenshot 3 — Results page with visual ratio shapes + download buttons
+- [ ] Screenshot 4 — Pricing page (free vs Pro vs Lifetime)
+- [ ] Demo video (30-60 seconds) — full flow: upload → process → download
+- [ ] Thumbnail for video (eye-catching, text overlay)
 
-**Perfect for:**
-- Content creators posting to TikTok, Instagram, YouTube
-- Social media managers handling multiple platforms
-- Anyone tired of manual video editing
+### Technical Readiness
+- [ ] All bugs fixed (FFmpeg watermark ✅, fonts ✅)
+- [ ] Google Analytics live with `NEXT_PUBLIC_GA_ID` set
+- [ ] Lemon Squeezy webhook configured
+- [ ] Load test — ensure server handles 50+ concurrent users
+- [ ] Error monitoring (check Render logs during launch)
+- [ ] Cache OG image so social shares look perfect
+
+---
+
+## Product Hunt Listing
+
+### Product Name
+**RACIO — The Ratio Engine**
+
+### Tagline (60 chars max)
+`One file in, every social format out — in 1 second ⚡`
+
+### Description
+
+Stop manually resizing content for every platform. RACIO converts any image or video to all social media formats instantly.
+
+**The problem:**
+Every creator posts to 4+ platforms. Each wants a different size. Manually resizing takes 20+ minutes per piece of content.
+
+**The solution:**
+Drop one file. Get 6 platform-ready formats in under 1 second (images) or 30 seconds (video).
+
+**Formats included:**
+📱 9:16 — TikTok, Reels, Shorts
+📷 1:1 — Instagram Feed
+🎬 16:9 — YouTube, Twitter
+📸 4:5 — Instagram Portrait
+📌 2:3 — Pinterest
+🎥 21:9 — Ultrawide/Cinema
 
 **Key features:**
-✅ One-click conversion to all formats
-✅ X/Twitter video downloader built-in
-✅ No editing skills needed
-✅ 5-second processing time
-✅ Download all as ZIP
+⚡ Images convert in <1 second
+📹 Videos convert in <30 seconds
+🔗 Paste X/Twitter URLs — download + convert
+📦 Download all formats with one click
+🖼️ Up to 4K image quality (Lifetime)
+🎬 1080p HD video quality
+🌙 Dark/light mode
+📱 Mobile-friendly — works on any device
+🔒 Privacy-first — files auto-delete after 1 hour
 
 **Pricing:**
-- Free: 3 videos/day
-- Pro: $7/month (unlimited)
-- Lifetime: $79 (early bird, then $149)
+- 🆓 Free: 5 conversions/day, 1080p, watermarked
+- ⚡ Pro: $7/mo — unlimited, 2K images, no watermark
+- 👑 Lifetime: $79 one-time (early bird, then $149)
 
-Built by a solo developer who was tired of resizing videos manually. Try it free!
+Built solo by a creator who was tired of resizing. Try it free at [racio.app](https://racio.app) — no login required.
 
-## Topics/Categories
+### Topics
 - Productivity
 - Video
-- Social Media
-- Creator Tools
+- Social Media Marketing
+- Content Creation
+- Design Tools
 
-## First Comment (Post immediately after launch)
+---
+
+## First Comment (Post IMMEDIATELY after launch)
+
+```
 Hey Product Hunt! 👋
 
-I'm [Your Name], and I built RACIO because I was spending way too much time resizing videos for different platforms.
+I'm [Your Name], the solo builder behind RACIO.
 
-Every time I made a video, I had to:
-- Open video editor
-- Resize for TikTok (9:16)
-- Resize for Instagram feed (1:1)  
-- Resize for YouTube (16:9)
-- Export 3 separate files
+I've been creating content for years, and the most annoying part was never
+the creative work — it was the 20 minutes AFTER, manually resizing the
+same video for TikTok, Instagram, YouTube, and Twitter.
 
-That's 20+ minutes of tedious work for each video! 😫
+So I built RACIO. Now my workflow looks like this:
 
-So I built RACIO. Now I just paste my video once, and it automatically generates all three formats in about 5 seconds.
+1. Drop my video (or paste a Twitter/X URL)
+2. All 6 formats generate automatically
+3. Download everything with one click
+4. Done in literally 1 second for images
 
-**Try it free:** https://racio.up.railway.app
+Here's what makes it different from Canva or other tools:
+• No learning curve — just drop a file
+• No account needed — zero friction
+• Handles images AND video
+• 6 formats simultaneously, not one at a time
+• Under 1 second for images (try it, seriously)
 
-I'd love your feedback! What other formats or features would be helpful?
+The tech stack is Next.js + FFmpeg running on a single server, processing
+everything server-side for quality and speed.
 
-## Gallery Images Needed
-1. Hero image (1270x760px) - Show the main UI with a video being converted
-2. Screenshot 1 - Upload/paste interface  
-3. Screenshot 2 - Results page with 3 formats
-4. Screenshot 3 - Download all button / ZIP feature
-5. GIF/Video - 10-second demo of the full flow
+I'd love your honest feedback:
+• What formats am I missing?
+• What would make you switch from your current workflow?
+• Would an API be useful for your team?
 
-## Launch Checklist
-- [ ] Create Product Hunt account
-- [ ] Upvote 10+ products over next 3 days
-- [ ] Leave 5+ thoughtful comments on other launches
-- [ ] Prepare all gallery images
-- [ ] Write maker comment (above)
-- [ ] Schedule launch for Tuesday/Wednesday 12:01 AM PT
-- [ ] Prepare social media posts to share
-- [ ] Email friends to support the launch
-- [ ] Monitor and respond to every comment
+Try it free: https://racio.app
 
-## Best Launch Times
-- **Day:** Tuesday, Wednesday, or Thursday
-- **Time:** 12:01 AM Pacific Time (1:31 PM IST)
-- **Why:** Less competition, full 24 hours of visibility
-
-## Promotion Plan for Launch Day
-1. **Hour 0:** Post on Twitter, LinkedIn, IndieHackers
-2. **Hour 1-2:** DM close friends and supporters
-3. **Hour 4-6:** Engage with every comment on PH
-4. **Hour 8-12:** Second wave of social posts
-5. **Hour 18-24:** Thank you posts, final push
-
-## Sample Social Posts
-
-### Twitter Launch Announcement
+Thanks for checking it out! 🙏
 ```
-🚀 RACIO just launched on Product Hunt!
 
-Paste one video → Get all social formats instantly
-✅ 9:16 for TikTok/Reels
-✅ 1:1 for Instagram  
-✅ 16:9 for YouTube
+---
 
-Would mean the world if you checked it out! 🙏
+## Launch Day Strategy
+
+### Timing
+- **Day:** Tuesday or Wednesday (less competition than Mon/Thu)
+- **Time:** 12:01 AM PT = **1:31 PM IST**
+- **Duration:** Full 24-hour cycle
+
+### Hour-by-Hour Plan
+
+| Time (IST) | Action |
+|------------|--------|
+| **1:30 PM** | Submit to Product Hunt |
+| **1:31 PM** | Post first comment immediately |
+| **1:35 PM** | Tweet launch announcement (pinned) |
+| **1:40 PM** | Post on LinkedIn |
+| **1:45 PM** | Post on IndieHackers |
+| **1:50 PM** | DM 20 closest friends/supporters |
+| **2:00 PM** | Share in relevant Discord/Slack communities |
+| **3-5 PM** | Respond to EVERY PH comment within 10 minutes |
+| **6 PM** | Second wave tweet with early results |
+| **9 PM** | LinkedIn update with traction numbers |
+| **11 PM** | Thank you tweet + ask for last-minute upvotes |
+| **Next AM** | Post final results thread |
+
+### Golden Rules
+1. **Reply to EVERY comment** — PH algorithm rewards engagement
+2. **Never ask for upvotes directly** — say "check it out" instead
+3. **Share the story, not the product** — people upvote stories
+4. **Be in the comments ALL DAY** — this is a 12-hour commitment
+5. **Have a "hunter" if possible** — reach out to top PH hunters
+
+---
+
+## Social Media Posts
+
+### Twitter Launch Thread
+
+```
+🧵 I just launched RACIO on Product Hunt.
+
+Here's the story of why I built it 👇
+
+1/ Every creator knows the pain:
+
+You make ONE video. Then you spend 20 minutes resizing it for:
+- TikTok (9:16)
+- Instagram Feed (1:1)
+- YouTube (16:9)
+- Instagram Portrait (4:5)
+- Pinterest (2:3)
+
+It's mind-numbing busy work. 😫
+
+2/ I tried every tool:
+- Canva → Too slow, 5 minutes per format
+- Premiere Pro → Overkill for just resizing
+- Online converters → Sketchy websites, low quality
+
+None of them could just take ONE file and give me EVERYTHING.
+
+3/ So I built RACIO.
+
+Drop a file. Get 6 formats back. Under 1 second for images.
+
+No login. No watermarks (on Pro). No nonsense.
+
+Try it: https://racio.app
+
+4/ The tech is simple but fast:
+- Next.js frontend
+- FFmpeg on the server
+- Smart padding (no cropping, no stretching)
+- Files auto-delete in 1 hour (privacy first)
+
+5/ It handles images AND videos:
+- Images: <1 second processing
+- Videos: <30 seconds processing
+- Up to 4K image quality
+- 1080p HD video
+
+6/ Built this entire thing solo in 6 weeks.
+
+Would mean the world if you checked it out on Product Hunt today.
 
 👉 [Product Hunt Link]
 
-#buildinpublic #producthunt
+If you're a creator, I'd love your feedback.
+What's missing? What would make this a must-have?
+
+#buildinpublic #producthunt #indiehackers
 ```
 
 ### LinkedIn Post
+
 ```
-Excited to share that RACIO just launched on Product Hunt! 🎉
+🚀 Today I launched RACIO on Product Hunt.
 
-After months of building, I finally shipped a tool that solves a problem I faced daily: manually resizing videos for every platform.
+After 6 weeks of building solo, I finally shipped a tool that
+solves a problem every content creator faces:
 
-RACIO lets you paste one video and instantly get versions for TikTok, Instagram, and YouTube.
+Manually resizing content for every social platform.
 
-If you're a creator or social media manager, I'd love your feedback!
+RACIO takes one file and instantly generates versions for
+TikTok, Instagram, YouTube, Pinterest, and more.
 
-🔗 Link in comments
+Some numbers:
+⚡ <1 second for images
+📹 <30 seconds for video
+📱 6 formats simultaneously
+🔒 Files auto-delete (privacy first)
+
+The backstory:
+I was spending 20+ minutes per video just on resizing.
+Not editing. Not creating. Just... making it fit.
+
+So I built the tool I wished existed.
+
+If you're a creator, social media manager, or agency —
+I'd love your honest feedback.
+
+🔗 [Product Hunt link in comments]
+
+#ProductHunt #BuildInPublic #CreatorTools #SaaS
 ```
+
+### IndieHackers Post / Reddit r/SideProject
+
+```
+Title: I built a tool that converts any file to every social media
+format in 1 second — just launched on PH
+
+Hey everyone!
+
+After 6 weeks of solo building, I launched RACIO today.
+
+The problem: Every platform wants a different aspect ratio.
+Resizing manually takes forever.
+
+The solution: Drop one file → get 6 platform-ready formats instantly.
+
+Tech stack: Next.js, FFmpeg, hosted on Render
+Revenue: Freemium ($7/mo Pro, $79 Lifetime)
+
+Would love feedback from fellow builders:
+1. Is the pricing right?
+2. What features am I missing?
+3. Would you pay for an API?
+
+Link: https://racio.app
+PH: [link]
+```
+
+---
+
+## Communities to Share In
+
+| Community | Where | Rules |
+|-----------|-------|-------|
+| IndieHackers | indiehackers.com | Post in "Show IH" |
+| r/SideProject | Reddit | Share story, not just link |
+| r/EntrepreneurRideAlong | Reddit | Focus on journey |
+| Hacker News | news.ycombinator.com | Show HN post |
+| Dev.to | dev.to | Write technical article |
+| Creator Economy Discord servers | Discord | Share naturally |
+| Maker communities on Twitter/X | X | Thread format |
+
+---
+
+## Post-Launch (Week After)
+
+- [ ] Write "What I learned launching on PH" blog post
+- [ ] Email everyone who signed up / paid thanking them
+- [ ] Fix any bugs surfaced during launch
+- [ ] Analyze GA4 data — what's the conversion funnel?
+- [ ] Plan next feature based on feedback
+- [ ] Reach out to Aravind Srinivas with traction data
+
+---
+
+## Success Metrics
+
+| Metric | Target |
+|--------|--------|
+| PH upvotes | 200+ |
+| PH ranking | Top 5 of the day |
+| Website visits (launch day) | 2,000+ |
+| Sign ups / conversions | 500+ |
+| First paid customers | 5-10 |
+| Social media impressions | 50K+ |
+
+---
+
+*Remember: Product Hunt is about the STORY, not the product.*
+*Tell YOUR story. Why you built it. What frustrated you. The journey.*
+*People upvote people, not features.*
