@@ -3,9 +3,10 @@
 
 # --- Stage 1: Dependencies ---
 FROM node:20-slim AS deps
+# yt-dlp-exec needs python during npm install (postinstall script)
+RUN apt-get update && apt-get install -y python3 && ln -s /usr/bin/python3 /usr/bin/python && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY package.json package-lock.json* ./
-# Use npm install to avoid strict lockfile enforcement across OS
 RUN npm install
 
 # --- Stage 2: Builder ---
