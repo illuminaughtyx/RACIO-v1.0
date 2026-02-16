@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, CSSProperties } from "react";
+import React, { useState, useRef, useEffect, CSSProperties } from "react";
 import Link from "next/link";
 import { Upload, Link as LinkIcon, Loader2, Sparkles, Zap, Shield, Clock, Download, RefreshCcw, CheckCircle2, Check, Star, Crown, Sun, Moon, X, Key, Package, Smartphone, Grid, Monitor, Film, Image as ImageIcon } from "lucide-react";
 import { checkUsage, incrementUsage, isProUser, checkUrlUsage, incrementUrlUsage } from "@/lib/usage";
@@ -36,7 +36,7 @@ export default function Home() {
   const [step, setStep] = useState<"upload" | "processing" | "results">("upload");
   const [resultsData, setResultsData] = useState<any>(null);
   const [isUrlLoading, setIsUrlLoading] = useState(false);
-  const [processingMessage, setProcessingMessage] = useState("Processing");
+  const [processingMessage, setProcessingMessage] = useState("Preparing...");
   const [progress, setProgress] = useState(0);
   const [stage, setStage] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -56,6 +56,15 @@ export default function Home() {
   const [selectedRatios, setSelectedRatios] = useState<string[]>(["9:16", "1:1", "16:9"]);
   const [queueStatus, setQueueStatus] = useState<{ active: number; queued: number; position?: number } | null>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [showSticky, setShowSticky] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowSticky(window.scrollY > 400);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
   const [mediaType, setMediaType] = useState<"image" | "video">("image");
   const exitPopupShown = useRef(false);
   const progressInterval = useRef<NodeJS.Timeout | null>(null);
@@ -982,6 +991,44 @@ export default function Home() {
           Made with precision • © {new Date().getFullYear()} RACIO
         </div>
       </footer>
+
+      {/* Mobile Sticky Bar */}
+      <div style={{
+        position: "fixed",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        padding: "16px 24px",
+        background: theme.bg === "#09090b" ? "rgba(9,9,11,0.9)" : "rgba(250,250,250,0.9)",
+        backdropFilter: "blur(12px)",
+        borderTop: `1px solid ${theme.border}`,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        zIndex: 100,
+        transform: showSticky && isMobile ? "translateY(0)" : "translateY(100%)",
+        transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+        boxShadow: "0 -4px 20px rgba(0,0,0,0.1)"
+      }}>
+        <div style={{ fontSize: 13, fontWeight: 600 }}>
+          <span className="text-gradient">RACIO</span>
+          <p style={{ fontSize: 11, color: theme.textMuted }}>Free 1080p, 2K & 4K</p>
+        </div>
+        <button
+          onClick={() => {
+            if (step === "results") {
+              handleDownloadAll();
+            } else {
+              window.scrollTo({ top: 0, behavior: "smooth" });
+              document.getElementById("file-input")?.click();
+            }
+          }}
+          style={{ ...btn, padding: "10px 20px", fontSize: 14 }}
+          className="shimmer"
+        >
+          {step === "results" ? (downloadedAll ? "Saved ✓" : "Download All") : "Convert File"}
+        </button>
+      </div>
     </main>
   );
 }

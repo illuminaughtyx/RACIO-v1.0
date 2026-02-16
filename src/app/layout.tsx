@@ -34,14 +34,18 @@ export const metadata: Metadata = {
     title: "RACIO — The Ratio Engine",
     description: "Paste once. Post everywhere. Convert videos to all social formats instantly.",
     type: "website",
-    images: ["/og-image.png"],
+    url: "https://racio.app",
+    siteName: "RACIO",
+    images: [{ url: "https://racio.app/og-image.png", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
     title: "RACIO — The Ratio Engine",
     description: "Paste once. Post everywhere. Convert videos to all social formats instantly.",
-    images: ["/twitter-image.png"],
+    images: ["https://racio.app/og-image.png"],
+    creator: "@racioapp",
   },
+  metadataBase: new URL("https://racio.app"),
 };
 
 export default function RootLayout({
