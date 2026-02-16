@@ -28,8 +28,8 @@ function configurePaths() {
 
     if (isProduction) {
         // Docker container paths
-        FFMPEG_PATH = "/usr/bin/ffmpeg";
-        FFPROBE_PATH = "/usr/bin/ffprobe";
+        FFMPEG_PATH = "/usr/local/bin/ffmpeg";
+        FFPROBE_PATH = "/usr/local/bin/ffprobe";
     } else {
         // Development - try to use ffmpeg-static
         try {

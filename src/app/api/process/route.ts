@@ -16,8 +16,8 @@ function configureFfmpeg() {
 
     if (isProduction) {
         // Use system FFmpeg in Docker
-        ffmpeg.setFfmpegPath("/usr/bin/ffmpeg");
-        ffmpeg.setFfprobePath("/usr/bin/ffprobe");
+        ffmpeg.setFfmpegPath("/usr/local/bin/ffmpeg");
+        ffmpeg.setFfprobePath("/usr/local/bin/ffprobe");
     } else {
         // Use static binaries in development
         try {
