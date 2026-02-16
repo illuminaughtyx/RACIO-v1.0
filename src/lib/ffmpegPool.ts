@@ -27,9 +27,9 @@ function configurePaths() {
     const isProduction = process.env.NODE_ENV === "production";
 
     if (isProduction) {
-        // Docker container paths
-        FFMPEG_PATH = "/usr/local/bin/ffmpeg";
-        FFPROBE_PATH = "/usr/local/bin/ffprobe";
+        // Docker container paths (apt-get install location)
+        FFMPEG_PATH = "/usr/bin/ffmpeg";
+        FFPROBE_PATH = "/usr/bin/ffprobe";
     } else {
         // Development - try to use ffmpeg-static
         try {

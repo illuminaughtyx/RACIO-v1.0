@@ -15,9 +15,16 @@ function configureFfmpeg() {
     const isProduction = process.env.NODE_ENV === "production";
 
     if (isProduction) {
-        // Use system FFmpeg in Docker
-        ffmpeg.setFfmpegPath("/usr/local/bin/ffmpeg");
-        ffmpeg.setFfprobePath("/usr/local/bin/ffprobe");
+        // Use system FFmpeg from apt-get install (likely /usr/bin/ffmpeg)
+        // Or fallback to PATH if not found at specific location
+        if (existsSync("/usr/bin/ffmpeg")) {
+            ffmpeg.setFfmpegPath("/usr/bin/ffmpeg");
+            ffmpeg.setFfprobePath("/usr/bin/ffprobe");
+        } else {
+            // Fallback to /usr/local/bin (legacy) or system PATH
+            ffmpeg.setFfmpegPath("/usr/local/bin/ffmpeg");
+            ffmpeg.setFfprobePath("/usr/local/bin/ffprobe");
+        }
     } else {
         // Use static binaries in development
         try {
