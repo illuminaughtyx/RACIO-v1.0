@@ -507,15 +507,17 @@ export default function Home() {
                 style={{
                   ...card,
                   padding: 48,
-                  borderStyle: "dashed",
-                  borderWidth: 2,
-                  borderColor: isDragOver ? "#8b5cf6" : "rgba(6,182,212,0.3)",
+                  border: "none",
+                  position: "relative",
+                  background: isDragOver ? "rgba(139,92,246,0.1)" : theme.cardBg,
                   cursor: "pointer",
                   marginBottom: 24,
                   transition: "all 0.3s ease",
                   transform: isDragOver ? "scale(1.02)" : "scale(1)",
-                  boxShadow: isDragOver ? "0 0 40px rgba(139,92,246,0.3)" : "0 0 20px rgba(6,182,212,0.1)"
+                  boxShadow: isDragOver ? "0 0 40px rgba(139,92,246,0.3)" : "0 0 20px rgba(6,182,212,0.1)",
+                  overflow: "hidden"
                 }}
+                className="gradient-border"
                 onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
                 onDragLeave={() => setIsDragOver(false)}
                 onDrop={(e) => { e.preventDefault(); setIsDragOver(false); const file = e.dataTransfer.files[0]; if (file && (file.type.startsWith("image/") || file.type.startsWith("video/"))) handleFileSelect(file); }}
@@ -677,12 +679,16 @@ export default function Home() {
                           borderColor: isSelected ? "#fbbf24" : theme.border,
                           color: isSelected ? "#fbbf24" : theme.textMuted,
                           display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-                          padding: "16px 8px", borderRadius: 12,
+                          padding: "16px 12px", borderRadius: 16,
+                          minHeight: 110,
                           cursor: isLocked ? "default" : "pointer",
                           opacity: isLocked ? 0.7 : 1,
-                          transition: "all 0.2s",
-                          position: "relative"
+                          transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+                          position: "relative",
+                          boxShadow: isSelected ? "0 4px 20px -4px rgba(251,191,36,0.4)" : "none",
+                          transform: isSelected ? "translateY(-2px)" : "none"
                         }}
+                        className={isSelected ? "" : "card-hover"}
                       >
                         {isLocked && (
                           <div style={{ position: "absolute", top: 6, right: 6, background: "rgba(251,191,36,0.1)", borderRadius: "50%", padding: 3 }}>
@@ -709,7 +715,7 @@ export default function Home() {
                 )}
               </div>
 
-              <p style={{ marginTop: 24, fontSize: 12, color: theme.textMuted }}>Trusted by 500+ creators</p>
+
             </div>
           </>
         )}
