@@ -1036,6 +1036,7 @@ export default function Home() {
           <div style={{ display: "flex", gap: 20 }}>
             <Link href="/privacy" style={{ fontSize: 13, color: theme.textMuted, textDecoration: "none" }}>Privacy</Link>
             <Link href="/terms" style={{ fontSize: 13, color: theme.textMuted, textDecoration: "none" }}>Terms</Link>
+            <button onClick={() => setShowLicenseModal(true)} style={{ fontSize: 13, color: theme.textMuted, background: "none", border: "none", cursor: "pointer", padding: 0 }}>Activate License</button>
             <a href="mailto:racioapp@gmail.com" style={{ fontSize: 13, color: theme.textMuted, textDecoration: "none" }}>Contact</a>
           </div>
         </div>

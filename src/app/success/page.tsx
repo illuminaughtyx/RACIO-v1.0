@@ -146,8 +146,8 @@ function SuccessContent() {
                 </ul>
             </div>
 
-            {/* License Key Card */}
-            {license && (
+            {/* License Key Info */}
+            {license ? (
                 <div style={{
                     background: "rgba(139, 92, 246, 0.1)",
                     border: "1px solid rgba(139, 92, 246, 0.2)",
@@ -195,7 +195,23 @@ function SuccessContent() {
                         </button>
                     </div>
                     <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 11, marginTop: 10 }}>
-                        Save this key! You can use it to restore Pro access on any device.
+                        Save this key! Use it to restore Pro access on any device.
+                    </p>
+                </div>
+            ) : (
+                <div style={{
+                    background: "rgba(139, 92, 246, 0.1)",
+                    border: "1px solid rgba(139, 92, 246, 0.2)",
+                    borderRadius: 16,
+                    padding: 20,
+                    marginBottom: 32,
+                    textAlign: "center"
+                }}>
+                    <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 14, marginBottom: 6 }}>
+                        🔑 Your license key has been sent to your email
+                    </p>
+                    <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 12 }}>
+                        Use it to activate RACIO Pro on any device via &quot;Activate License&quot; in the footer.
                     </p>
                 </div>
             )}
@@ -208,7 +224,7 @@ function SuccessContent() {
             </Link>
 
             <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 12, marginTop: 24 }}>
-                A receipt has been sent to your email
+                A receipt and license key have been sent to your email
             </p>
         </div>
     );

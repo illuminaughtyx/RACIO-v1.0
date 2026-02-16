@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generateLicenseKey, saveLicense } from "@/lib/stripe";
 import crypto from "crypto";
 
 const WEBHOOK_SECRET = process.env.LEMONSQUEEZY_WEBHOOK_SECRET || "";
@@ -14,14 +13,6 @@ function verifySignature(payload: string, signature: string): boolean {
     const hmac = crypto.createHmac("sha256", WEBHOOK_SECRET);
     const digest = hmac.update(payload).digest("hex");
     return crypto.timingSafeEqual(Buffer.from(digest), Buffer.from(signature));
-}
-
-// Map Lemon Squeezy product/variant to plan type
-function getPlanType(productName: string, variantName: string): "pro_monthly" | "pro_yearly" | "lifetime" {
-    const name = `${productName} ${variantName}`.toLowerCase();
-    if (name.includes("lifetime")) return "lifetime";
-    if (name.includes("yearly") || name.includes("annual")) return "pro_yearly";
-    return "pro_monthly";
 }
 
 export async function POST(request: NextRequest) {
@@ -44,68 +35,40 @@ export async function POST(request: NextRequest) {
 
     console.log(`📬 Lemon Squeezy webhook: ${eventName}`);
 
+    // ============================================================================
+    // LICENSE KEYS ARE NOW MANAGED BY LEMON SQUEEZY
+    // ============================================================================
+    // Lemon Squeezy auto-generates license keys when "Generate License Keys" is
+    // enabled on a product. License keys are:
+    //   - Sent to the customer via email by Lemon Squeezy
+    //   - Validated via POST /v1/licenses/validate on the LS API
+    //   - Activated via POST /v1/licenses/activate on the LS API
+    //
+    // This webhook now only handles logging and monitoring.
+    // No local file storage needed.
+    // ============================================================================
+
     switch (eventName) {
         case "order_created": {
             const { data, meta } = event;
             const attrs = data?.attributes;
+            const customerEmail = attrs?.user_email || meta?.custom_data?.email || "unknown";
+            const status = attrs?.status || "unknown";
+            const total = attrs?.total_formatted || "$0";
+            const productName = attrs?.first_order_item?.product_name || "Unknown Product";
 
-            if (!attrs) {
-                console.error("Missing order attributes");
-                break;
-            }
-
-            const customerEmail = attrs.user_email || meta?.custom_data?.email || "unknown@email.com";
-            const productName = attrs.first_order_item?.product_name || "";
-            const variantName = attrs.first_order_item?.variant_name || "";
-            const plan = getPlanType(productName, variantName);
-            const orderId = String(data.id);
-
-            // Only process paid orders
-            if (attrs.status === "paid" || attrs.status === "active") {
-                const licenseKey = generateLicenseKey();
-
-                await saveLicense(licenseKey, {
-                    email: customerEmail,
-                    plan,
-                    createdAt: new Date().toISOString(),
-                    activated: false,
-                    stripeCustomerId: `ls_${attrs.customer_id}`,
-                    stripeSubscriptionId: orderId,
-                });
-
-                console.log(`✅ License created: ${licenseKey} for ${customerEmail} (${plan})`);
-                console.log(`   Order ID: ${orderId}`);
-            } else {
-                console.log(`⏳ Order ${orderId} status: ${attrs.status} — not generating license yet`);
-            }
+            console.log(`✅ New order: ${productName} for ${customerEmail} — ${total} (status: ${status})`);
+            console.log(`   Order ID: ${data?.id}`);
             break;
         }
 
         case "subscription_created": {
-            const { data, meta } = event;
+            const { data } = event;
             const attrs = data?.attributes;
+            const customerEmail = attrs?.user_email || "unknown";
+            const productName = attrs?.product_name || "Unknown";
 
-            if (!attrs) break;
-
-            const customerEmail = attrs.user_email || meta?.custom_data?.email || "unknown@email.com";
-            const productName = attrs.product_name || "";
-            const variantName = attrs.variant_name || "";
-            const plan = getPlanType(productName, variantName);
-
-            if (attrs.status === "active") {
-                const licenseKey = generateLicenseKey();
-
-                await saveLicense(licenseKey, {
-                    email: customerEmail,
-                    plan,
-                    createdAt: new Date().toISOString(),
-                    activated: false,
-                    stripeCustomerId: `ls_${attrs.customer_id}`,
-                    stripeSubscriptionId: String(data.id),
-                });
-
-                console.log(`✅ Subscription license: ${licenseKey} for ${customerEmail} (${plan})`);
-            }
+            console.log(`✅ New subscription: ${productName} for ${customerEmail} (status: ${attrs?.status})`);
             break;
         }
 
@@ -114,7 +77,7 @@ export async function POST(request: NextRequest) {
             const { data } = event;
             const attrs = data?.attributes;
             console.log(`⚠️ Subscription ${eventName}: ${data?.id} (${attrs?.user_email})`);
-            // TODO: Revoke license key associated with this subscription
+            // License key will show as "expired" when validated via LS API
             break;
         }
 
@@ -125,8 +88,15 @@ export async function POST(request: NextRequest) {
             break;
         }
 
+        case "license_key_created": {
+            const { data } = event;
+            const attrs = data?.attributes;
+            console.log(`🔑 License key created: ${attrs?.key} (status: ${attrs?.status})`);
+            break;
+        }
+
         default:
-            console.log(`ℹ️ Unhandled Lemon Squeezy event: ${eventName}`);
+            console.log(`ℹ️ Unhandled event: ${eventName}`);
     }
 
     return NextResponse.json({ received: true });
