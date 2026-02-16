@@ -7,10 +7,11 @@ import LicenseActivation from "@/components/LicenseActivation";
 import { analytics } from "@/components/GoogleAnalytics";
 
 // Payment Links - Using Lemon Squeezy (works in India!)
+// Each link includes a redirect URL so users land on the correct success page
 const PAYMENT_LINKS = {
-  PRO_MONTHLY: "https://racioapp.lemonsqueezy.com/checkout/buy/1b322848-8f95-455f-9570-7deb748c4358",
-  PRO_YEARLY: "https://racioapp.lemonsqueezy.com/checkout/buy/ba4dc072-1dfb-4ce4-b238-36a3f3914d09",
-  LIFETIME: "https://racioapp.lemonsqueezy.com/checkout/buy/8832208c-763f-4448-8f76-edc23be51534",
+  PRO_MONTHLY: "https://racioapp.lemonsqueezy.com/checkout/buy/1b322848-8f95-455f-9570-7deb748c4358?checkout%5Bredirect_url%5D=https%3A%2F%2Fracio.app%2Fsuccess%3Fplan%3Dpro",
+  PRO_YEARLY: "https://racioapp.lemonsqueezy.com/checkout/buy/ba4dc072-1dfb-4ce4-b238-36a3f3914d09?checkout%5Bredirect_url%5D=https%3A%2F%2Fracio.app%2Fsuccess%3Fplan%3Dpro",
+  LIFETIME: "https://racioapp.lemonsqueezy.com/checkout/buy/8832208c-763f-4448-8f76-edc23be51534?checkout%5Bredirect_url%5D=https%3A%2F%2Fracio.app%2Fsuccess%3Fplan%3Dlifetime",
 };
 
 // Style helpers
@@ -411,8 +412,11 @@ export default function Home() {
       <LicenseActivation
         isOpen={showLicenseModal}
         onClose={() => setShowLicenseModal(false)}
-        onActivated={() => {
+        onActivated={(isLifetimePlan) => {
           setIsPro(true);
+          if (isLifetimePlan) {
+            setIsLifetime(true);
+          }
           setShowLicenseModal(false);
         }}
       />

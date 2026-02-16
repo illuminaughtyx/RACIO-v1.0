@@ -5,7 +5,7 @@ import { Key, CheckCircle2, AlertCircle, Loader2, X, Sparkles } from "lucide-rea
 interface LicenseActivationProps {
     isOpen: boolean;
     onClose: () => void;
-    onActivated: () => void;
+    onActivated: (isLifetime: boolean) => void;
 }
 
 export default function LicenseActivation({ isOpen, onClose, onActivated }: LicenseActivationProps) {
@@ -47,9 +47,9 @@ export default function LicenseActivation({ isOpen, onClose, onActivated }: Lice
 
                 setStatus("success");
 
-                // Call callback after delay
+                // Call callback after delay — pass isLifetime flag
                 setTimeout(() => {
-                    onActivated();
+                    onActivated(!!data.isLifetime);
                     onClose();
                 }, 2000);
             } else {
