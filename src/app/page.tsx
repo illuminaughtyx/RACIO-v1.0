@@ -335,13 +335,31 @@ export default function Home() {
 
   const formatSize = (bytes: number) => bytes < 1024 * 1024 ? `${(bytes / 1024).toFixed(1)} KB` : `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 
-  const formats: Record<string, { label: string; desc: string; icon: string }> = {
-    "reel_9-16": { label: "9:16", desc: "Reels & Shorts", icon: "📱" },
-    "feed_1-1": { label: "1:1", desc: "Instagram Feed", icon: "📷" },
-    "landscape_16-9": { label: "16:9", desc: "YouTube", icon: "🎬" },
-    "portrait_4-5": { label: "4:5", desc: "Instagram Portrait", icon: "📸" },
-    "portrait_2-3": { label: "2:3", desc: "Pinterest", icon: "📌" },
-    "ultrawide_21-9": { label: "21:9", desc: "Ultrawide/Cinema", icon: "🎥" },
+  const formats: Record<string, { label: string; desc: string; icon: string; ratio: [number, number] }> = {
+    "reel_9-16": { label: "9:16", desc: "Reels & Shorts", icon: "📱", ratio: [9, 16] },
+    "reel_9-16_1080p": { label: "9:16", desc: "Reels & Shorts", icon: "📱", ratio: [9, 16] },
+    "reel_9-16_2K": { label: "9:16", desc: "Reels & Shorts • 2K", icon: "📱", ratio: [9, 16] },
+    "reel_9-16_4K": { label: "9:16", desc: "Reels & Shorts • 4K", icon: "📱", ratio: [9, 16] },
+    "feed_1-1": { label: "1:1", desc: "Instagram Feed", icon: "📷", ratio: [1, 1] },
+    "feed_1-1_1080p": { label: "1:1", desc: "Instagram Feed", icon: "📷", ratio: [1, 1] },
+    "feed_1-1_2K": { label: "1:1", desc: "Instagram Feed • 2K", icon: "📷", ratio: [1, 1] },
+    "feed_1-1_4K": { label: "1:1", desc: "Instagram Feed • 4K", icon: "📷", ratio: [1, 1] },
+    "landscape_16-9": { label: "16:9", desc: "YouTube", icon: "🎬", ratio: [16, 9] },
+    "landscape_16-9_1080p": { label: "16:9", desc: "YouTube", icon: "🎬", ratio: [16, 9] },
+    "landscape_16-9_2K": { label: "16:9", desc: "YouTube • 2K", icon: "🎬", ratio: [16, 9] },
+    "landscape_16-9_4K": { label: "16:9", desc: "YouTube • 4K", icon: "🎬", ratio: [16, 9] },
+    "portrait_4-5": { label: "4:5", desc: "Instagram Portrait", icon: "📸", ratio: [4, 5] },
+    "portrait_4-5_1080p": { label: "4:5", desc: "Instagram Portrait", icon: "📸", ratio: [4, 5] },
+    "portrait_4-5_2K": { label: "4:5", desc: "Instagram Portrait • 2K", icon: "📸", ratio: [4, 5] },
+    "portrait_4-5_4K": { label: "4:5", desc: "Instagram Portrait • 4K", icon: "📸", ratio: [4, 5] },
+    "portrait_2-3": { label: "2:3", desc: "Pinterest", icon: "📌", ratio: [2, 3] },
+    "portrait_2-3_1080p": { label: "2:3", desc: "Pinterest", icon: "📌", ratio: [2, 3] },
+    "portrait_2-3_2K": { label: "2:3", desc: "Pinterest • 2K", icon: "📌", ratio: [2, 3] },
+    "portrait_2-3_4K": { label: "2:3", desc: "Pinterest • 4K", icon: "📌", ratio: [2, 3] },
+    "ultrawide_21-9": { label: "21:9", desc: "Ultrawide/Cinema", icon: "🎥", ratio: [21, 9] },
+    "ultrawide_21-9_1080p": { label: "21:9", desc: "Ultrawide/Cinema", icon: "🎥", ratio: [21, 9] },
+    "ultrawide_21-9_2K": { label: "21:9", desc: "Ultrawide/Cinema • 2K", icon: "🎥", ratio: [21, 9] },
+    "ultrawide_21-9_4K": { label: "21:9", desc: "Ultrawide/Cinema • 4K", icon: "🎥", ratio: [21, 9] },
   };
 
   return (
@@ -844,14 +862,42 @@ export default function Home() {
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, textAlign: "left" }}>
               {resultsData.files.map((file: any) => {
-                const info = formats[file.name] || { label: file.name, desc: "Video", icon: "🎥" };
+                const info = formats[file.name] || { label: file.name, desc: "Video", icon: "🎥", ratio: [16, 9] as [number, number] };
                 const isFileDownloaded = downloadedFiles.has(file.name);
+                const [rw, rh] = info.ratio;
+                const shapeScale = 32;
+                const shapeW = (rw / Math.max(rw, rh)) * shapeScale;
+                const shapeH = (rh / Math.max(rw, rh)) * shapeScale;
+                const resMatch = file.name.match(/(2K|4K|1080p)$/);
+                const resBadge = resMatch ? resMatch[1] : null;
                 return (
-                  <div key={file.name} style={{ ...card, padding: 20, opacity: isFileDownloaded ? 0.7 : 1 }}>
+                  <div key={file.name} style={{ ...card, padding: 20, opacity: isFileDownloaded ? 0.7 : 1, transition: "all 0.2s" }} className="card-hover">
                     <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
-                      <span style={{ fontSize: 24 }}>{info.icon}</span>
-                      <div>
-                        <p style={{ fontWeight: 700 }}>{info.label}</p>
+                      {/* Visual ratio shape */}
+                      <div style={{ width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 10, background: "rgba(139,92,246,0.1)" }}>
+                        <div style={{
+                          width: shapeW,
+                          height: shapeH,
+                          border: "2px solid #a78bfa",
+                          borderRadius: 3,
+                          position: "relative",
+                        }} />
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                          <p style={{ fontWeight: 700 }}>{info.label}</p>
+                          {resBadge && (
+                            <span style={{
+                              fontSize: 9,
+                              fontWeight: 700,
+                              padding: "2px 6px",
+                              borderRadius: 4,
+                              background: resBadge === "4K" ? "rgba(251,191,36,0.2)" : resBadge === "2K" ? "rgba(139,92,246,0.2)" : "rgba(255,255,255,0.06)",
+                              color: resBadge === "4K" ? "#fbbf24" : resBadge === "2K" ? "#a78bfa" : theme.textMuted,
+                              letterSpacing: 0.5,
+                            }}>{resBadge}</span>
+                          )}
+                        </div>
                         <p style={{ fontSize: 12, color: theme.textMuted }}>{info.desc}</p>
                       </div>
                     </div>
