@@ -67,15 +67,17 @@ function SuccessContent() {
 
     const proFeatures = [
         "✓ Unlimited daily conversions",
-        "✓ Priority processing speed",
+        "✓ 2K image quality",
+        "✓ 1080p HD video quality",
         "✓ X (Twitter) URL downloading",
         "✓ Zero watermarks"
     ];
 
     const lifetimeFeatures = [
         "✓ Everything in Pro, forever",
+        "✓ 4K image quality",
+        "✓ 1080p HD video quality",
         "✓ Unlimited daily conversions",
-        "✓ Priority processing speed",
         "✓ All future updates included"
     ];
 
