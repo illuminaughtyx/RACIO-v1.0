@@ -74,7 +74,7 @@ function processImage({
         let filterChain = `scale=${width}:${height}:force_original_aspect_ratio=decrease,pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2:black`;
 
         if (addWatermark) {
-            filterChain += `,drawtext=text='[RACIO]':fontsize=18:fontcolor=white@0.6:x=w-tw-12:y=h-th-12:shadowcolor=black@0.4:shadowx=1:shadowy=1`;
+            filterChain += `,drawtext=text='[RACIO]':fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:fontsize=18:fontcolor=white@0.6:x=w-tw-12:y=h-th-12:shadowcolor=black@0.4:shadowx=1:shadowy=1`;
         }
 
         ffmpeg(input)
@@ -128,7 +128,7 @@ function processVideo({
         // Scale to fit within target, then pad with black to exact dimensions
         if (addWatermark) {
             filterChain = [
-                `scale=${width}:${height}:force_original_aspect_ratio=decrease,pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2:black,drawtext=text='[RACIO]':fontsize=18:fontcolor=white@0.6:x=w-tw-12:y=h-th-12:shadowcolor=black@0.4:shadowx=1:shadowy=1`,
+                `scale=${width}:${height}:force_original_aspect_ratio=decrease,pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2:black,drawtext=text='[RACIO]':fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:fontsize=18:fontcolor=white@0.6:x=w-tw-12:y=h-th-12:shadowcolor=black@0.4:shadowx=1:shadowy=1`,
             ];
         } else {
             filterChain = [

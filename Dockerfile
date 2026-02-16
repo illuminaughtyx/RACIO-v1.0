@@ -26,14 +26,15 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 
-# Install minimal runtime dependencies (Python for yt-dlp)
-# We avoid 'ffmpeg' package to prevent heavy X11 libs
+# Install minimal runtime dependencies (Python for yt-dlp, fonts for FFmpeg watermark)
 RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
     python3-venv \
     curl \
     xz-utils \
+    fontconfig \
+    fonts-dejavu-core \
     && rm -rf /var/lib/apt/lists/*
 
 # Install yt-dlp in venv
