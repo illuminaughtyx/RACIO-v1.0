@@ -247,6 +247,7 @@ export default function Home() {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("isPro", String(isPro || isLifetime));
+    formData.append("isLifetime", String(isLifetime));
     formData.append("ratios", JSON.stringify(selectedRatios));
 
     try {
@@ -293,7 +294,7 @@ export default function Home() {
       const processRes = await fetch("/api/process", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tempPath: fetchData.tempPath, sessionId: fetchData.sessionId, isPro: isPro || isLifetime, ratios: selectedRatios }),
+        body: JSON.stringify({ tempPath: fetchData.tempPath, sessionId: fetchData.sessionId, isPro: isPro || isLifetime, isLifetime, ratios: selectedRatios }),
       });
       stopProgress();
       if (!processRes.ok) throw new Error((await processRes.json()).error || "Processing failed");
@@ -879,7 +880,7 @@ export default function Home() {
               { icon: Shield, title: "Privacy First", desc: "Your files are auto-deleted after 1 hour. We never store or share them.", color: "#60a5fa" },
               { icon: Clock, title: "Save Hours Weekly", desc: "Stop manually resizing for each platform. Get all formats in one click.", color: "#f472b6" },
               { icon: Smartphone, title: "Every Platform", desc: "TikTok, Reels, Shorts, Feed, Stories — all ratios covered automatically.", color: "#34d399" },
-              { icon: Sparkles, title: "Pro Quality", desc: "1080p HD output with Pro. No quality loss, no compression artifacts.", color: "#fbbf24" },
+              { icon: Sparkles, title: "Pro Quality", desc: "2K images for Pro, 4K for Lifetime. 1080p HD video. No quality loss.", color: "#fbbf24" },
               { icon: Download, title: "Batch Download", desc: "Download all formats at once. No zipping, no waiting for email links.", color: "#f87171" },
             ].map(({ icon: Icon, title, desc, color }) => (
               <div key={title} style={{ ...card, padding: 24 }} className="card-hover">
@@ -922,7 +923,7 @@ export default function Home() {
             <h3 style={{ fontSize: 20, fontWeight: 700, marginTop: 16, marginBottom: 4 }}>Pro</h3>
             <p style={{ fontSize: 28, fontWeight: 700, marginBottom: 20 }}>$7 <span style={{ fontSize: 14, fontWeight: 400, color: theme.textMuted }}>/mo</span></p>
             <ul style={{ listStyle: "none", marginBottom: 24 }}>
-              {["✨ No watermark", "🎬 1080p HD quality", "Custom ratios (4:5, 2:3...)", "Unlimited conversions", "X/Twitter downloader"].map(f => (
+              {["✨ No watermark", "📸 2K image quality", "🎬 1080p HD video", "Custom ratios (4:5, 2:3...)", "Unlimited conversions", "X/Twitter downloader"].map(f => (
                 <li key={f} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, fontSize: 14 }}>
                   <Check size={14} color="#4ade80" /> {f}
                 </li>
@@ -949,7 +950,7 @@ export default function Home() {
             <p style={{ fontSize: 28, fontWeight: 700, marginBottom: 4 }}>$79 <span style={{ fontSize: 14, fontWeight: 400, color: theme.textMuted }}>/once</span></p>
             <p style={{ fontSize: 12, color: "#f59e0b", marginBottom: 16 }}>Early bird • Then $149</p>
             <ul style={{ listStyle: "none", marginBottom: 24 }}>
-              {["✨ No watermark ever", "🎬 1080p HD quality", "All custom ratios", "Everything in Pro", "Future updates"].map(f => (
+              {["✨ No watermark ever", "📸 4K image quality", "🎬 1080p HD video", "All custom ratios", "Everything in Pro", "Future updates"].map(f => (
                 <li key={f} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, fontSize: 14, color: theme.textSecondary }}>
                   <Check size={14} color={isLifetime ? "#fbbf24" : "#f472b6"} /> {f}
                 </li>

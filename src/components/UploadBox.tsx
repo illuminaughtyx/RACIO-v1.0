@@ -64,8 +64,8 @@ export default function UploadBox({ onFileSelect, onUrlSubmit, isUrlLoading }: U
             >
                 <div className="flex flex-col items-center gap-4">
                     <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 ${isDragOver
-                            ? "bg-[var(--accent)]/20 scale-110"
-                            : "bg-[var(--bg-card)] group-hover:bg-[var(--bg-card-hover)] group-hover:scale-105"
+                        ? "bg-[var(--accent)]/20 scale-110"
+                        : "bg-[var(--bg-card)] group-hover:bg-[var(--bg-card-hover)] group-hover:scale-105"
                         }`}>
                         <Upload className={`w-6 h-6 transition-colors ${isDragOver ? "text-[var(--accent)]" : "text-[var(--text-muted)] group-hover:text-[var(--text-secondary)]"
                             }`} />
@@ -140,10 +140,8 @@ export default function UploadBox({ onFileSelect, onUrlSubmit, isUrlLoading }: U
                 </button>
             </form>
 
-            {/* Trust badge */}
-            <p className="text-center text-[var(--text-subtle)] text-xs">
-                Trusted by 500+ creators worldwide
-            </p>
+
+
         </div>
     );
 }

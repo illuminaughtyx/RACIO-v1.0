@@ -185,6 +185,7 @@ export async function POST(req: NextRequest) {
         let sessionId: string;
         let tempDir: string;
         let isPro = false; // Default: add watermark for free users
+        let isLifetime = false;
         let ratios: string[] = ["9:16", "1:1", "16:9"]; // Default ratios
         let sourceType: "FILE_UPLOAD" | "URL_DOWNLOAD" = "FILE_UPLOAD";
 
@@ -198,7 +199,7 @@ export async function POST(req: NextRequest) {
             "21:9": { width: 1260, height: 540, name: "ultrawide_21-9", padForVertical: true },
         };
 
-        // Ratio configuration for PRO/LIFETIME users (1080p)
+        // Ratio configuration for PRO/LIFETIME users (1080p) - used for videos
         const RATIO_CONFIG_PRO: Record<string, { width: number; height: number; name: string; padForVertical: boolean }> = {
             "9:16": { width: 1080, height: 1920, name: "reel_9-16_1080p", padForVertical: true },
             "1:1": { width: 1080, height: 1080, name: "feed_1-1_1080p", padForVertical: false },
@@ -208,17 +209,38 @@ export async function POST(req: NextRequest) {
             "21:9": { width: 2520, height: 1080, name: "ultrawide_21-9_1080p", padForVertical: true },
         };
 
+        // Ratio configuration for PRO users - IMAGES ONLY (2K / 1440p)
+        const RATIO_CONFIG_2K: Record<string, { width: number; height: number; name: string; padForVertical: boolean }> = {
+            "9:16": { width: 1440, height: 2560, name: "reel_9-16_2K", padForVertical: true },
+            "1:1": { width: 1440, height: 1440, name: "feed_1-1_2K", padForVertical: false },
+            "16:9": { width: 2560, height: 1440, name: "landscape_16-9_2K", padForVertical: true },
+            "4:5": { width: 1440, height: 1800, name: "portrait_4-5_2K", padForVertical: false },
+            "2:3": { width: 1440, height: 2160, name: "portrait_2-3_2K", padForVertical: false },
+            "21:9": { width: 3360, height: 1440, name: "ultrawide_21-9_2K", padForVertical: true },
+        };
+
+        // Ratio configuration for LIFETIME users - IMAGES ONLY (4K / 2160p)
+        const RATIO_CONFIG_4K: Record<string, { width: number; height: number; name: string; padForVertical: boolean }> = {
+            "9:16": { width: 2160, height: 3840, name: "reel_9-16_4K", padForVertical: true },
+            "1:1": { width: 2160, height: 2160, name: "feed_1-1_4K", padForVertical: false },
+            "16:9": { width: 3840, height: 2160, name: "landscape_16-9_4K", padForVertical: true },
+            "4:5": { width: 2160, height: 2700, name: "portrait_4-5_4K", padForVertical: false },
+            "2:3": { width: 2160, height: 3240, name: "portrait_2-3_4K", padForVertical: false },
+            "21:9": { width: 5040, height: 2160, name: "ultrawide_21-9_4K", padForVertical: true },
+        };
+
         if (contentType.includes("multipart/form-data")) {
             // Handle file upload
             const formData = await req.formData();
             const file = formData.get("file") as File;
             isPro = formData.get("isPro") === "true";
+            isLifetime = formData.get("isLifetime") === "true";
             const ratiosStr = formData.get("ratios") as string;
             if (ratiosStr) {
                 try {
                     ratios = JSON.parse(ratiosStr);
-                } catch (e) {
-                    // Keep default ratios
+                } catch {
+                    ratios = ratiosStr.split(",");
                 }
             }
 
@@ -236,9 +258,10 @@ export async function POST(req: NextRequest) {
         } else {
             // Handle JSON request (from URL fetch)
             const body = await req.json();
-            const { tempPath, sessionId: existingSessionId, isPro: isProFromBody, ratios: ratiosFromBody } = body;
+            const { tempPath, sessionId: existingSessionId, isPro: isProFromBody, isLifetime: isLifetimeFromBody, ratios: ratiosFromBody } = body;
             sourceType = "URL_DOWNLOAD";
             isPro = isProFromBody === true;
+            isLifetime = isLifetimeFromBody === true;
             if (Array.isArray(ratiosFromBody) && ratiosFromBody.length > 0) {
                 ratios = ratiosFromBody;
             }
@@ -278,8 +301,18 @@ export async function POST(req: NextRequest) {
         const height = metadata.height || 1080;
         const isVertical = height > width;
 
-        // Build targets from selected ratios - Use 1080p for Pro/Lifetime, 720p for Free
-        const RATIO_CONFIG = isPro ? RATIO_CONFIG_PRO : RATIO_CONFIG_FREE;
+        // Detect if input is image or video (early check for resolution selection)
+        const isImage = isImageFile(inputPath);
+
+        // Build targets from selected ratios
+        // Images: Free=720p, Pro=2K, Lifetime=4K
+        // Videos: Free=720p, Pro/Lifetime=1080p
+        let RATIO_CONFIG;
+        if (isImage) {
+            RATIO_CONFIG = isLifetime ? RATIO_CONFIG_4K : isPro ? RATIO_CONFIG_2K : RATIO_CONFIG_FREE;
+        } else {
+            RATIO_CONFIG = isPro ? RATIO_CONFIG_PRO : RATIO_CONFIG_FREE;
+        }
 
         const targets = ratios
             .filter(r => RATIO_CONFIG[r]) // Only process valid ratios
@@ -303,8 +336,7 @@ export async function POST(req: NextRequest) {
             });
         }
 
-        // Detect if input is image or video
-        const isImage = isImageFile(inputPath);
+        // File extension for output
         const fileExt = isImage ? ".jpg" : ".mp4";
 
         // Process SEQUENTIALLY (not parallel) - reduces CPU pressure for multiple users
