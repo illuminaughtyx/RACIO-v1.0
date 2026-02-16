@@ -907,7 +907,7 @@ export default function Home() {
             <h3 style={{ fontSize: 20, fontWeight: 700, marginTop: 16, marginBottom: 4 }}>Starter</h3>
             <p style={{ fontSize: 28, fontWeight: 700, marginBottom: 20 }}>$0 <span style={{ fontSize: 14, fontWeight: 400, color: theme.textMuted }}>/forever</span></p>
             <ul style={{ listStyle: "none", marginBottom: 24 }}>
-              {["5 conversions/day", "Standard quality", "Watermarked", "10MB max"].map(f => (
+              {["5 conversions/day", "1080p quality", "Watermarked", "10MB max"].map(f => (
                 <li key={f} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, fontSize: 14, color: theme.textSecondary }}>
                   <Check size={14} color={theme.textMuted} /> {f}
                 </li>

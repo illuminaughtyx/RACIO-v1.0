@@ -189,14 +189,14 @@ export async function POST(req: NextRequest) {
         let ratios: string[] = ["9:16", "1:1", "16:9"]; // Default ratios
         let sourceType: "FILE_UPLOAD" | "URL_DOWNLOAD" = "FILE_UPLOAD";
 
-        // Ratio configuration for FREE users (720p)
+        // Ratio configuration for FREE users (1080p)
         const RATIO_CONFIG_FREE: Record<string, { width: number; height: number; name: string; padForVertical: boolean }> = {
-            "9:16": { width: 720, height: 1280, name: "reel_9-16", padForVertical: true },
-            "1:1": { width: 720, height: 720, name: "feed_1-1", padForVertical: false },
-            "16:9": { width: 1280, height: 720, name: "landscape_16-9", padForVertical: true },
-            "4:5": { width: 720, height: 900, name: "portrait_4-5", padForVertical: false },
-            "2:3": { width: 720, height: 1080, name: "portrait_2-3", padForVertical: false },
-            "21:9": { width: 1260, height: 540, name: "ultrawide_21-9", padForVertical: true },
+            "9:16": { width: 1080, height: 1920, name: "reel_9-16", padForVertical: true },
+            "1:1": { width: 1080, height: 1080, name: "feed_1-1", padForVertical: false },
+            "16:9": { width: 1920, height: 1080, name: "landscape_16-9", padForVertical: true },
+            "4:5": { width: 1080, height: 1350, name: "portrait_4-5", padForVertical: false },
+            "2:3": { width: 1080, height: 1620, name: "portrait_2-3", padForVertical: false },
+            "21:9": { width: 2520, height: 1080, name: "ultrawide_21-9", padForVertical: true },
         };
 
         // Ratio configuration for PRO/LIFETIME users (1080p) - used for videos
