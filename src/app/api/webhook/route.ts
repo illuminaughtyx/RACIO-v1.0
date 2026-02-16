@@ -11,8 +11,12 @@ function verifySignature(payload: string, signature: string): boolean {
     }
 
     const hmac = crypto.createHmac("sha256", WEBHOOK_SECRET);
-    const digest = hmac.update(payload).digest("hex");
-    return crypto.timingSafeEqual(Buffer.from(digest), Buffer.from(signature));
+    const digest = Buffer.from(hmac.update(payload).digest("hex"), "utf8");
+    const signatureBuffer = Buffer.from(signature, "utf8");
+
+    if (digest.length !== signatureBuffer.length) return false;
+
+    return crypto.timingSafeEqual(digest, signatureBuffer);
 }
 
 export async function POST(request: NextRequest) {
