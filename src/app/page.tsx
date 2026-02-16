@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Upload, Link as LinkIcon, Loader2, Sparkles, Zap, Shield, Clock, Download, RefreshCcw, CheckCircle2, Check, Star, Crown, Sun, Moon, X, Key, Package, Smartphone, Grid, Monitor, Film, Image as ImageIcon } from "lucide-react";
 import { checkUsage, incrementUsage, isProUser, checkUrlUsage, incrementUrlUsage } from "@/lib/usage";
 import LicenseActivation from "@/components/LicenseActivation";
+import { analytics } from "@/components/GoogleAnalytics";
 
 // Payment Links - Using Lemon Squeezy (works in India!)
 const PAYMENT_LINKS = {
@@ -136,6 +137,7 @@ export default function Home() {
     if (!resultsData?.files) return;
 
     setDownloadedAll(true);
+    analytics.downloadAll(resultsData.files.length);
 
     // Trigger sequential downloads to prevent browser blocking
     for (const file of resultsData.files) {
@@ -252,6 +254,7 @@ export default function Home() {
     setError(null);
     setStep("processing");
     simulateProgress();
+    analytics.fileUploaded(file.type, file.size);
 
     const formData = new FormData();
     formData.append("file", file);
@@ -263,8 +266,10 @@ export default function Home() {
       const res = await fetch("/api/process", { method: "POST", body: formData });
       stopProgress();
       if (!res.ok) throw new Error((await res.json()).error || "Upload failed");
-      setResultsData(await res.json());
+      const result = await res.json();
+      setResultsData(result);
       setStep("results");
+      analytics.processingComplete(result.type || "file", Date.now());
       incrementUsage();
     } catch (e: any) {
       stopProgress();
@@ -298,6 +303,7 @@ export default function Home() {
       const fetchData = await fetchRes.json();
       setIsUrlLoading(false);
       setStep("processing");
+      analytics.urlSubmitted(url.includes("twitter") || url.includes("x.com") ? "twitter" : "other");
       simulateProgress();
 
       const processRes = await fetch("/api/process", {
@@ -989,7 +995,7 @@ export default function Home() {
             ) : isLifetime ? (
               <button disabled style={{ ...btnSecondary, width: "100%", opacity: 0.5, cursor: "default" }}>Included in Lifetime</button>
             ) : (
-              <a href={PAYMENT_LINKS.PRO_MONTHLY} style={{ ...btn, width: "100%", textDecoration: "none" }}>Get Pro</a>
+              <a href={PAYMENT_LINKS.PRO_MONTHLY} onClick={() => analytics.proClicked()} style={{ ...btn, width: "100%", textDecoration: "none" }}>Get Pro</a>
             )}
           </div>
 
@@ -1014,7 +1020,7 @@ export default function Home() {
             {isLifetime ? (
               <button disabled style={{ ...btnSecondary, width: "100%", borderColor: "#fbbf24", color: "#fbbf24", cursor: "default" }}>✓ Active Forever</button>
             ) : (
-              <a href={PAYMENT_LINKS.LIFETIME} style={{ ...btn, width: "100%", textDecoration: "none", background: "linear-gradient(135deg, #f59e0b, #ea580c)", boxShadow: "0 8px 24px -4px rgba(245,158,11,0.3)" }} className="shimmer">🔥 Buy Lifetime</a>
+              <a href={PAYMENT_LINKS.LIFETIME} onClick={() => analytics.lifetimeClicked()} style={{ ...btn, width: "100%", textDecoration: "none", background: "linear-gradient(135deg, #f59e0b, #ea580c)", boxShadow: "0 8px 24px -4px rgba(245,158,11,0.3)" }} className="shimmer">🔥 Buy Lifetime</a>
             )}
           </div>
         </div>
